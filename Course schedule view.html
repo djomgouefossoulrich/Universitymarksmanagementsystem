@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Course Enrollment</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-blue-800">Student Course Enrollment System</h1>
+            <p class="text-gray-600">Manage your course schedule and enrollments</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left panel - Available Courses -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Available Courses</h2>
+                <div class="mb-4">
+                    <input type="text" id="courseSearch" placeholder="Search courses..." 
+                        class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="space-y-2 max-h-96 overflow-y-auto" id="availableCourses">
+                    <!-- Courses will be populated here -->
+                </div>
+            </div>
+
+            <!-- Middle panel - Weekly Schedule View -->
+            <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Weekly Schedule</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="border p-2 bg-gray-100 w-20"></th>
+                                <th class="border p-2 bg-gray-100">Monday</th>
+                                <th class="border p-2 bg-gray-100">Tuesday</th>
+                                <th class="border p-2 bg-gray-100">Wednesday</th>
+                                <th class="border p-2 bg-gray-100">Thursday</th>
+                                <th class="border p-2 bg-gray-100">Friday</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scheduleTable">
+                            <!-- Time slots will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right panel - Enrolled Courses -->
+            <div class="bg-white rounded-lg shadow p-6 lg:col-span-3">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Your Enrolled Courses</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="border p-2 bg-gray-100">Course Code</th>
+                                <th class="border p-2 bg-gray-100">Course Name</th>
+                                <th class="border p-2 bg-gray-100">Credits</th>
+                                <th class="border p-2 bg-gray-100">Schedule</th>
+                                <th class="border p-2 bg-gray-100">Instructor</th>
+                                <th class="border p-2 bg-gray-100">Room</th>
+                                <th class="border p-2 bg-gray-100">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="enrolledCourses">
+                            <!-- Enrolled courses will be populated here -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2" class="border p-2 text-right font-semibold">Total Credits:</td>
+                                <td id="totalCredits" class="border p-2 font-semibold">0</td>
+                                <td colspan="4" class="border p-2"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="mt-4 flex justify-end">
+                    <button id="saveEnrollment" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded">
+                        Save Enrollment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Details Modal -->
+    <div id="courseModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 max-w-lg w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold" id="modalTitle">Course Details</h3>
+                <button id="closeModal" class="text-gray-600 hover:text-gray-800">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="modalContent" class="mb-4">
+                <!-- Course details will be displayed here -->
+            </div>
+            <div class="flex justify-end">
+                <button id="modalAction" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded">
+                    Enroll
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="notifications" class="fixed bottom-4 right-4 z-50"></div>
+
+    <script>
+        // Sample data - in a real application, this would come from an API
+        const courses = [
+            {
+                id: "CS101",
+                name: "Introduction to Computer Science",
+                credits: 3,
+                days: ["Monday", "Wednesday"],
+                startTime: "09:00",
+                endTime: "10:30",
+                instructor: "Dr. Smith",
+                room: "Tech 101",
+                description: "Fundamental concepts of programming and computer science."
+            },
+            {
+                id: "MATH201",
+                name: "Calculus II",
+                credits: 4,
+                days: ["Tuesday", "Thursday"],
+                startTime: "11:00",
+                endTime: "12:30",
+                instructor: "Prof. Johnson",
+                room: "Math 305",
+                description: "Advanced concepts in calculus including integration techniques."
+            },
+            {
+                id: "ENG105",
+                name: "Academic Writing",
+                credits: 3,
+                days: ["Monday", "Wednesday", "Friday"],
+                startTime: "13:00",
+                endTime: "14:00",
+                instructor: "Dr. Garcia",
+                room: "Arts 210",
+                description: "Develop essential academic writing skills."
+            },
+            {
+                id: "PHY202",
+                name: "Physics II",
+                credits: 4,
+                days: ["Tuesday", "Thursday"],
+                startTime: "09:00",
+                endTime: "10:30",
+                instructor: "Prof. Williams",
+                room: "Science 401",
+                description: "Electricity, magnetism, and optics."
+            },
+            {
+                id: "BIO101",
+                name: "Introduction to Biology",
+                credits: 4,
+                days: ["Monday", "Wednesday"],
+                startTime: "11:00",
+                endTime: "12:30",
+                instructor: "Dr. Chen",
+                room: "Bio Lab 1",
+                description: "Basic principles of biology and life sciences."
+            },
+            {
+                id: "CHEM110",
+                name: "General Chemistry",
+                credits: 4,
+                days: ["Tuesday", "Thursday"],
+                startTime: "14:00",
+                endTime: "15:30",
+                instructor: "Dr. Patel",
+                room: "Chem Lab 2",
+                description: "Fundamental principles of chemistry."
+            },
+            {
+                id: "HIST101",
+                name: "World History",
+                credits: 3,
+                days: ["Monday", "Wednesday", "Friday"],
+                startTime: "15:00",
+                endTime: "16:00",
+                instructor: "Prof. Thompson",
+                room: "History 102",
+                description: "Survey of world history from ancient civilizations to modern times."
+            },
+            {
+                id: "ECON201",
+                name: "Microeconomics",
+                credits: 3,
+                days: ["Tuesday", "Thursday"],
+                startTime: "16:00",
+                endTime: "17:30",
+                instructor: "Dr. Singh",
+                room: "Business 305",
+                description: "Study of individual markets and decision-making."
+            }
+        ];
+
+        // Store enrolled courses
+        let enrolledCourses = [];
+        
+        // Initialize time slots for the schedule
+        const timeSlots = [
+            "08:00-09:00", "09:00-10:00", "10:00-11:00", "11:00-12:00", 
+            "12:00-13:00", "13:00-14:00", "14:00-15:00", "15:00-16:00", 
+            "16:00-17:00"
+        ];
+        
+        // Days of the week for schedule
+        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
+        // Initialize the application
+        $(document).ready(function() {
+            // Populate available courses
+            displayAvailableCourses();
+            
+            // Initialize schedule table
+            initializeScheduleTable();
+            
+            // Setup event listeners
+            setupEventListeners();
+        });
+
+        // Display available courses
+        function displayAvailableCourses(searchTerm = "") {
+            const coursesContainer = $("#availableCourses");
+            coursesContainer.empty();
+            
+            const filteredCourses = searchTerm 
+                ? courses.filter(course => 
+                    course.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    course.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                : courses;
+            
+            filteredCourses.forEach(course => {
+                // Check if course is already enrolled
+                const isEnrolled = enrolledCourses.some(c => c.id === course.id);
+                
+                const courseElement = $(`
+                    <div class="course-item p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer ${isEnrolled ? 'bg-blue-50 border-blue-200' : ''}" 
+                        data-course-id="${course.id}">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="font-medium">${course.id}: ${course.name}</h3>
+                                <p class="text-sm text-gray-600">${course.days.join(", ")} ${course.startTime}-${course.endTime}</p>
+                            </div>
+                            <span class="text-blue-600 font-medium">${course.credits} cr.</span>
+                        </div>
+                    </div>
+                `);
+                
+                coursesContainer.append(courseElement);
+            });
+        }
+
+        // Initialize the schedule table
+        function initializeScheduleTable() {
+            const scheduleTable = $("#scheduleTable");
+            scheduleTable.empty();
+            
+            timeSlots.forEach(timeSlot => {
+                const row = $("<tr></tr>");
+                
+                // Add time slot column
+                row.append(`<td class="border p-2 text-xs font-medium bg-gray-50">${timeSlot}</td>`);
+                
+                // Add day columns
+                days.forEach(day => {
+                    row.append(`<td class="border p-2 schedule-cell" data-day="${day}" data-time="${timeSlot}"></td>`);
+                });
+                
+                scheduleTable.append(row);
+            });
+            
+            // Update schedule with enrolled courses
+            updateScheduleView();
+        }
+
+        // Update the schedule view with enrolled courses
+        function updateScheduleView() {
+            // Clear all schedule cells
+            $(".schedule-cell").empty().removeClass("bg-blue-100 bg-yellow-100");
+            
+            // Add enrolled courses to schedule
+            enrolledCourses.forEach(course => {
+                course.days.forEach(day => {
+                    const startTime = timeToMinutes(course.startTime);
+                    const endTime = timeToMinutes(course.endTime);
+                    
+                    timeSlots.forEach(timeSlot => {
+                        const [slotStart, slotEnd] = timeSlot.split("-");
+                        const slotStartMinutes = timeToMinutes(slotStart);
+                        const slotEndMinutes = timeToMinutes(slotEnd);
+                        
+                        // Check if course time overlaps with this slot
+                        if ((startTime < slotEndMinutes && endTime > slotStartMinutes)) {
+                            const cell = $(`.schedule-cell[data-day="${day}"][data-time="${timeSlot}"]`);
+                            
+                            // Check for conflicts
+                            if (cell.html() !== "") {
+                                cell.addClass("bg-yellow-100"); // Indicate conflict
+                                
+                                // Append new course to existing content
+                                cell.append(`<div class="text-xs text-red-600 font-medium mt-1">CONFLICT: ${course.id}</div>`);
+                            } else {
+                                cell.addClass("bg-blue-100");
+                                cell.html(`
+                                    <div class="text-xs">
+                                        <div class="font-medium">${course.id}</div>
+                                        <div>${course.room}</div>
+                                    </div>
+                                `);
+                            }
+                        }
+                    });
+                });
+            });
+        }
+
+        // Convert time string (HH:MM) to minutes for easy comparison
+        function timeToMinutes(timeStr) {
+            const [hours, minutes] = timeStr.split(":").map(Number);
+            return hours * 60 + minutes;
+        }
+
+        // Update enrolled courses table
+        function updateEnrolledCoursesTable() {
+            const enrolledTable = $("#enrolledCourses");
+            enrolledTable.empty();
+            
+            let totalCredits = 0;
+            
+            enrolledCourses.forEach(course => {
+                totalCredits += course.credits;
+                
+                const row = $(`
+                    <tr>
+                        <td class="border p-2">${course.id}</td>
+                        <td class="border p-2">${course.name}</td>
+                        <td class="border p-2">${course.credits}</td>
+                        <td class="border p-2">${course.days.join(", ")} ${course.startTime}-${course.endTime}</td>
+                        <td class="border p-2">${course.instructor}</td>
+                        <td class="border p-2">${course.room}</td>
+                        <td class="border p-2">
+                            <button class="drop-course bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm" 
+                                data-course-id="${course.id}">Drop</button>
+                        </td>
+                    </tr>
+                `);
+                
+                enrolledTable.append(row);
+            });
+            
+            $("#totalCredits").text(totalCredits);
+        }
+
+        // Show course details modal
+        function showCourseDetails(courseId) {
+            const course = courses.find(c => c.id === courseId);
+            if (!course) return;
+            
+            const isEnrolled = enrolledCourses.some(c => c.id === courseId);
+            
+            $("#modalTitle").text(`${course.id}: ${course.name}`);
+            
+            $("#modalContent").html(`
+                <div class="space-y-2">
+                    <p><span class="font-medium">Credits:</span> ${course.credits}</p>
+                    <p><span class="font-medium">Schedule:</span> ${course.days.join(", ")} ${course.startTime}-${course.endTime}</p>
+                    <p><span class="font-medium">Instructor:</span> ${course.instructor}</p>
+                    <p><span class="font-medium">Room:</span> ${course.room}</p>
+                    <p><span class="font-medium">Description:</span> ${course.description}</p>
+                </div>
+            `);
+            
+            const modalAction = $("#modalAction");
+            if (isEnrolled) {
+                modalAction.text("Drop Course").removeClass("bg-blue-600 hover:bg-blue-700").addClass("bg-red-600 hover:bg-red-700");
+                modalAction.off().on("click", function() {
+                    dropCourse(courseId);
+                    $("#courseModal").hide();
+                });
+            } else {
+                modalAction.text("Enroll").removeClass("bg-red-600 hover:bg-red-700").addClass("bg-blue-600 hover:bg-blue-700");
+                modalAction.off().on("click", function() {
+                    enrollCourse(courseId);
+                    $("#courseModal").hide();
+                });
+            }
+            
+            $("#courseModal").show();
+        }
+
+        // Enroll in a course
+        function enrollCourse(courseId) {
+            const course = courses.find(c => c.id === courseId);
+            if (!course) return;
+            
+            // Check if already enrolled
+            if (enrolledCourses.some(c => c.id === courseId)) {
+                showNotification("You are already enrolled in this course.", "warning");
+                return;
+            }
+            
+            // Add to enrolled courses
+            enrolledCourses.push(course);
+            
+            // Update UI
+            updateEnrolledCoursesTable();
+            updateScheduleView();
+            displayAvailableCourses($("#courseSearch").val());
+            
+            showNotification(`Successfully enrolled in ${course.id}: ${course.name}`, "success");
+        }
+
+        // Drop a course
+        function dropCourse(courseId) {
+            // Remove from enrolled courses
+            enrolledCourses = enrolledCourses.filter(c => c.id !== courseId);
+            
+            // Update UI
+            updateEnrolledCoursesTable();
+            updateScheduleView();
+            displayAvailableCourses($("#courseSearch").val());
+            
+            showNotification(`Course ${courseId} has been dropped.`, "info");
+        }
+
+        // Show notification
+        function showNotification(message, type = "info") {
+            const notificationsContainer = $("#notifications");
+            
+            let bgColor = "bg-gray-800";
+            if (type === "success") bgColor = "bg-green-600";
+            if (type === "warning") bgColor = "bg-yellow-600";
+            if (type === "error") bgColor = "bg-red-600";
+            if (type === "info") bgColor = "bg-blue-600";
+            
+            const notification = $(`
+                <div class="${bgColor} text-white px-4 py-2 rounded-md shadow-lg mb-2 flex justify-between items-center opacity-0 transition-opacity duration-300">
+                    <span>${message}</span>
+                    <button class="ml-4 text-white">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            `);
+            
+            notificationsContainer.append(notification);
+            
+            // Fade in
+            setTimeout(() => {
+                notification.removeClass("opacity-0").addClass("opacity-100");
+            }, 10);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                notification.addClass("opacity-0");
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 5000);
+            
+            // Remove on click
+            notification.find("button").on("click", function() {
+                notification.addClass("opacity-0");
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search courses
+            $("#courseSearch").on("input", function() {
+                displayAvailableCourses($(this).val());
+            });
+            
+            // Course item click
+            $(document).on("click", ".course-item", function() {
+                const courseId = $(this).data("course-id");
+                showCourseDetails(courseId);
+            });
+            
+            // Close modal
+            $("#closeModal").on("click", function() {
+                $("#courseModal").hide();
+            });
+            
+            // Drop course button
+            $(document).on("click", ".drop-course", function(e) {
+                e.stopPropagation(); // Prevent triggering parent click events
+                const courseId = $(this).data("course-id");
+                dropCourse(courseId);
+            });
+            
+            // Save enrollment button
+            $("#saveEnrollment").on("click", function() {
+                if (enrolledCourses.length === 0) {
+                    showNotification("You haven't enrolled in any courses yet.", "warning");
+                    return;
+                }
+                
+                // In a real application, this would send data to the server
+                showNotification("Your course enrollment has been saved successfully!", "success");
+            });
+            
+            // Close modal when clicking outside
+            $(window).on("click", function(event) {
+                if (event.target === document.getElementById("courseModal")) {
+                    $("#courseModal").hide();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

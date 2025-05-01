@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Profile - Schedule Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <style>
+        .time-slot {
+            min-height: 80px;
+            cursor: pointer;
+        }
+        .course-block {
+            cursor: move;
+            transition: all 0.3s;
+        }
+        .course-block:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .dragging {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-blue-800 text-white shadow-lg">
+            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <h1 class="text-2xl font-bold">Faculty Profile Management</h1>
+                <div class="flex items-center space-x-4">
+                    <span id="faculty-name" class="font-semibold">Engr.FOSSO </span>
+                    <button id="edit-profile" class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-md text-sm">Edit Profile</button>
+                    <button id="logout" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-md text-sm">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow container mx-auto px-4 py-6">
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- Sidebar -->
+                <div class="w-full md:w-1/4">
+                    <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <img src="images/pa.jpg" alt="Faculty Photo" class="w-16 h-16 rounded-full bg-gray-300">
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-800" id="sidebar-name">Dr. John Smith</h2>
+                                <p class="text-gray-600" id="sidebar-title">Associate Professor</p>
+                            </div>
+                        </div>
+                        <div class="border-t border-gray-200 pt-4">
+                            <p class="text-gray-700 mb-2"><span class="font-semibold">Department:</span> Computer Science</p>
+                            <p class="text-gray-700 mb-2"><span class="font-semibold">Email:</span> john.smith@university.edu</p>
+                            <p class="text-gray-700 mb-2"><span class="font-semibold">Office:</span> Room 405, Tech Building</p>
+                            <p class="text-gray-700"><span class="font-semibold">Office Hours:</span> Mon/Wed 2-4 PM</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Course Management -->
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800">Course Management</h3>
+                        <div class="flex justify-between mb-4">
+                            <button id="add-course" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm">Add Course</button>
+                            <button id="save-schedule" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm">Save Schedule</button>
+                        </div>
+                        
+                        <h4 class="font-semibold mb-2 text-gray-700">My Courses</h4>
+                        <div id="course-list" class="space-y-2">
+                            <div class="course-item bg-blue-100 p-2 rounded-md flex justify-between items-center" draggable="true" data-course-id="CS101">
+                                <span>CS101: Intro to Programming</span>
+                                <button class="text-red-600 hover:text-red-800">×</button>
+                            </div>
+                            <div class="course-item bg-green-100 p-2 rounded-md flex justify-between items-center" draggable="true" data-course-id="CS205">
+                                <span>CS205: Data Structures</span>
+                                <button class="text-red-600 hover:text-red-800">×</button>
+                            </div>
+                            <div class="course-item bg-purple-100 p-2 rounded-md flex justify-between items-center" draggable="true" data-course-id="CS310">
+                                <span>CS310: Algorithms</span>
+                                <button class="text-red-600 hover:text-red-800">×</button>
+                            </div>
+                            <div class="course-item bg-yellow-100 p-2 rounded-md flex justify-between items-center" draggable="true" data-course-id="CS450">
+                                <span>CS450: Operating Systems</span>
+                                <button class="text-red-600 hover:text-red-800">×</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Timetable View -->
+                <div class="w-full md:w-3/4">
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-bold text-gray-800">Weekly Schedule</h2>
+                            <div class="flex space-x-2">
+                                <select id="term-selector" class="border rounded-md px-3 py-1 text-gray-700">
+                                    <option value="fall-2024">Fall 2024</option>
+                                    <option value="spring-2025">Spring 2025</option>
+                                    <option value="summer-2025">Summer 2025</option>
+                                </select>
+                                <button id="print-schedule" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded-md text-sm">Print</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Timetable Grid -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse">
+                                <thead>
+                                    <tr>
+                                        <th class="border p-2 bg-gray-100 text-gray-700 w-20"></th>
+                                        <th class="border p-2 bg-gray-100 text-gray-700">Monday</th>
+                                        <th class="border p-2 bg-gray-100 text-gray-700">Tuesday</th>
+                                        <th class="border p-2 bg-gray-100 text-gray-700">Wednesday</th>
+                                        <th class="border p-2 bg-gray-100 text-gray-700">Thursday</th>
+                                        <th class="border p-2 bg-gray-100 text-gray-700">Friday</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="timetable-body">
+                                    <!-- Time slots from 8 AM to 6 PM -->
+                                    <tr>
+                                        <td class="border p-2 bg-gray-50 font-medium text-gray-700">8:00 AM</td>
+                                        <td class="border p-1 time-slot" data-day="monday" data-time="8:00"></td>
+                                        <td class="border p-1 time-slot" data-day="tuesday" data-time="8:00"></td>
+                                        <td class="border p-1 time-slot" data-day="wednesday" data-time="8:00"></td>
+                                        <td class="border p-1 time-slot" data-day="thursday" data-time="8:00"></td>
+                                        <td class="border p-1 time-slot" data-day="friday" data-time="8:00"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border p-2 bg-gray-50 font-medium text-gray-700">9:00 AM</td>
+                                        <td class="border p-1 time-slot" data-day="monday" data-time="9:00"></td>
+                                        <td class="border p-1 time-slot" data-day="tuesday" data-time="9:00"></td>
+                                        <td class="border p-1 time-slot" data-day="wednesday" data-time="9:00"></td>
+                                        <td class="border p-1 time-slot" data-day="thursday" data-time="9:00"></td>
+                                        <td class="border p-1 time-slot" data-day="friday" data-time="9:00"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border p-2 bg-gray-50 font-medium text-gray-700">10:00 AM</td>
+                                        <td class="border p-1 time-slot" data-day="monday" data-time="10:00">
+                                            <div class="course-block bg-blue-100 p-2 rounded-md text-blue-800 text-sm" data-course-id="CS101">
+                                                <div class="font-bold">CS101: Intro to Programming</div>
+                                                <div>Room: CS-203</div>
+                                            </div>
+                                        </td>
+                                        <td class="border p-1 time-slot" data-day="tuesday" data-time="10:00"></td>
+                                        <td class="border p-1 time-slot" data-day="wednesday" data-time="10:00">
+                                            <div class="course-block bg-blue-100 p-2 rounded-md text-blue-800 text-sm" data-course-id="CS101">
+                                                <div class="font-bold">CS101: Intro to Programming</div>
+                                                <div>Room: CS-203</div>
+                                            </div>
+                                        </td>
+                                        <td class="border p-1 time-slot" data-day="thursday" data-time="10:00"></td>
+                                        <td class="border p-1 time-slot" data-day="friday" data-time="10:00"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border p-2 bg-gray-50 font-medium text-gray-700">11:00 AM</td>
+                                        <td class="border p-1 time-slot" data-day="monday" data-time="11:00"></td>
+                                        <td class="border p-1 time-slot" data-day="tuesday" data-time="11:00">
+                                            <div class="course-block bg-green-100 p-2 rounded-md text-green-800 text-sm" data-course-id="CS205">
+                                                <div class="font-bold">CS205: Data Structures</div>
+                                                <div>Room: CS-105</div>
+                                            </div>
+                                        </td>
+                                        <td class="border p-1 time-slot" data-day="wednesday" data-time="11:00"></td>
+                                        <td class="border p-1 time-slot" data-day="thursday" data-time="11:00">
+                                            <div class="course-block bg-green-100 p-2 rounded-md text-green-800 text-sm" data-course-id="CS205">
+                                                <div class="font-bold">CS205: Data Structures</div>
+                                                <div>Room: CS-105</div>
+                                            </div>
+                                        </td>
+                                        <td class="border p-1 time-slot" data-day="friday" data-time="11:00"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border p-2 bg-gray-50 font-medium text-gray-700">12:00 PM</td>
+                                        <td class="border p-1 time-slot" data-day="monday" data-time="12:00"></td>
+                                        <td class="border p-1 time-slot" data-day="tuesday" data-time="12:00"></td>
+                                        <td class="border p-1 time-slot" data-day="wednesday" data-time="12:00"></td>
+                                        <td class="border p-1 time-slot" data-day="thursday" data-time="12:00"></td>
+                                        <td class="border p-1 time-slot" data-day="friday" data-time="12:00"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border p-2 bg-gray-50 font-medium text-gray-700">1:00 PM</td>
+                                        <td class="border p-1 time-slot" data-day="monday" data-time="13:00"></td>
+                                        <td class="border p-1 time-slot" data-day="tuesday" data-time="13:00"></td>
+                                        <td class="border p-1 time-slot" data-day="wednesday" data-time="13:00"></td>
+                                        <td class="border p-1 time-slot" data-day="thursday" data-time="13:00"></td>
+                                        <td class="border p-1 time-slot" data-day="friday" data-time="13:00"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border p-2 bg-gray-50 font-medium text-gray-700">2:00 PM</td>
+                                        <td class="border p-1 time-slot" data-day="monday" data-time="14:00">
+                                            <div class="course-block bg-purple-100 p-2 rounded-md text-purple-800 text-sm" data-course-id="CS310">
+                                                <div class="font-bold">CS310: Algorithms</div>
+                                                <div>Room: CS-310</div>
+                                            </div>
+                                        </td>
+                                        <td class="border p-1 time-slot" data-day="tuesday" data-time="14:00"></td>
+                                        <td class="border p-1 time-slot" data-day="wednesday" data-time="14:00">
+                                            <div class="course-block bg-purple-100 p-2 rounded-md text-purple-800 text-sm" data-course-id="CS310">
+                                                <div class="font-bold">CS310: Algorithms</div>
+                                                <div>Room: CS-310</div>
+                                            </div>
+                                        </td>
+                                        <td class="border p-1 time-slot" data-day="thursday" data-time="14:00"></td>
+                                        <td class="border p-1 time-slot" data-day="friday" data-time="14:00">
+                                            <div class="course-block bg-purple-100 p-2 rounded-md text-purple-800 text-sm" data-course-id="CS310">
+                                                <div class="font-bold">CS310: Algorithms</div>
+                                                <div>Room: CS-310</div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border p-2 bg-gray-50 font-medium text-gray-700">3:00 PM</td>
+                                        <td class="border p-1 time-slot" data-day="monday" data-time="15:00"></td>
+                                        <td class="border p-1 time-slot" data-day="tuesday" data-time="15:00">
+                                            <div class="course-block bg-yellow-100 p-2 rounded-md text-yellow-800 text-sm" data-course-id="CS450">
+                                                <div class="font-bold">CS450: Operating Systems</div>
+                                                <div>Room: CS-405</div>
+                                            </div>
+                                        </td>
+                                        <td class="border p-1 time-slot" data-day="wednesday" data-time="15:00"></td>
+                                        <td class="border p-1 time-slot" data-day="thursday" data-time="15:00">
+                                            <div class="course-block bg-yellow-100 p-2 rounded-md text-yellow-800 text-sm" data-course-id="CS450">
+                                                <div class="font-bold">CS450: Operating Systems</div>
+                                                <div>Room: CS-405</div>
+                                            </div>
+                                        </td>
+                                        <td class="border p-1 time-slot" data-day="friday" data-time="15:00"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border p-2 bg-gray-50 font-medium text-gray-700">4:00 PM</td>
+                                        <td class="border p-1 time-slot" data-day="monday" data-time="16:00"></td>
+                                        <td class="border p-1 time-slot" data-day="tuesday" data-time="16:00"></td>
+                                        <td class="border p-1 time-slot" data-day="wednesday" data-time="16:00"></td>
+                                        <td class="border p-1 time-slot" data-day="thursday" data-time="16:00"></td>
+                                        <td class="border p-1 time-slot" data-day="friday" data-time="16:00"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border p-2 bg-gray-50 font-medium text-gray-700">5:00 PM</td>
+                                        <td class="border p-1 time-slot" data-day="monday" data-time="17:00"></td>
+                                        <td class="border p-1 time-slot" data-day="tuesday" data-time="17:00"></td>
+                                        <td class="border p-1 time-slot" data-day="wednesday" data-time="17:00"></td>
+                                        <td class="border p-1 time-slot" data-day="thursday" data-time="17:00"></td>
+                                        <td class="border p-1 time-slot" data-day="friday" data-time="17:00"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-4 mt-6">
+            <div class="container mx-auto px-4 text-center">
+                <p>&copy; 2025 University Faculty Management System</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal for adding/editing courses -->
+    <div id="course-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-800">Add/Edit Course</h3>
+                <button id="close-modal" class="text-gray-600 hover:text-gray-800">&times;</button>
+            </div>
+            <form id="course-form">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="course-code">Course Code</label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="course-code" type="text" placeholder="e.g. CS101">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="course-title">Course Title</label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="course-title" type="text" placeholder="e.g. Introduction to Programming">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="room">Room</label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="room" type="text" placeholder="e.g. CS-203">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="course-color">Course Color</label>
+                    <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="course-color">
+                        <option value="blue">Blue</option>
+                        <option value="green">Green</option>
+                        <option value="purple">Purple</option>
+                        <option value="yellow">Yellow</option>
+                        <option value="red">Red</option>
+                        <option value="indigo">Indigo</option>
+                        <option value="pink">Pink</option>
+                    </select>
+                </div>
+                <div class="flex justify-end pt-4">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Save Course</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for editing profile -->
+    <div id="profile-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-800">Edit Profile</h3>
+                <button id="close-profile-modal" class="text-gray-600 hover:text-gray-800">&times;</button>
+            </div>
+            <form id="profile-form">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="faculty-full-name">Full Name</label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="faculty-full-name" type="text" value="Dr. John Smith">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="faculty-title">Title</label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="faculty-title" type="text" value="Associate Professor">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="faculty-department">Department</label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="faculty-department" type="text" value="Computer Science">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="faculty-email">Email</label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="faculty-email" type="email" value="john.smith@university.edu">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="faculty-office">Office</label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="faculty-office" type="text" value="Room 405, Tech Building">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="faculty-hours">Office Hours</label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="faculty-hours" type="text" value="Mon/Wed 2-4 PM">
+                </div>
+                <div class="flex justify-end pt-4">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Save Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize drag and drop functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Modal functionality
+            const courseModal = document.getElementById('course-modal');
+            const addCourseBtn = document.getElementById('add-course');
+            const closeModalBtn = document.getElementById('close-modal');
+            const courseForm = document.getElementById('course-form');
+            const profileModal = document.getElementById('profile-modal');
+            const editProfileBtn = document.getElementById('edit-profile');
+            const closeProfileModalBtn = document.getElementById('close-profile-modal');
+            const profileForm = document.getElementById('profile-form');
+            const saveScheduleBtn = document.getElementById('save-schedule');
+            const printScheduleBtn = document.getElementById('print-schedule');
+
+            // Course form elements
+            const courseCode = document.getElementById('course-code');
+            const courseTitle = document.getElementById('course-title');
+            const room = document.getElementById('room');
+            const courseColor = document.getElementById('course-color');
+
+            // Profile form elements
+            const facultyFullName = document.getElementById('faculty-full-name');
+            const facultyTitle = document.getElementById('faculty-title');
+            const facultyDepartment = document.getElementById('faculty-department');
+            const facultyEmail = document.getElementById('faculty-email');
+            const facultyOffice = document.getElementById('faculty-office');
+            const facultyHours = document.getElementById('faculty-hours');
+
+            // Open course modal
+            addCourseBtn.addEventListener('click', function() {
+                // Reset form
+                courseForm.reset();
+                courseModal.classList.remove('hidden');
+            });
+
+            // Close course modal
+            closeModalBtn.addEventListener('click', function() {
+                courseModal.classList.add('hidden');
+            });
+
+            // Open profile modal
+            editProfileBtn.addEventListener('click', function() {
+                profileModal.classList.remove('hidden');
+            });
+
+            // Close profile modal
+            closeProfileModalBtn.addEventListener('click', function() {
+                profileModal.classList.add('hidden');
+            });
+
+            // Add course to the list
+            courseForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!courseCode.value || !courseTitle.value) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+                
+                const courseId = courseCode.value;
+                const courseName = courseTitle.value;
+                const courseRoom = room.value;
+                const color = courseColor.value;
+                
+                // Create new course item
+                const courseItem = document.createElement('div');
+                courseItem.className = `course-item bg-${color}-100 p-2 rounded-md flex justify-between items-center`;
+                courseItem.setAttribute('draggable', 'true');
+                courseItem.setAttribute('data-course-id', courseId);
+                courseItem.innerHTML = `
+                    <span>${courseId}: ${courseName}</span>
+                    <button class="text-red-600 hover:text-red-800">×</button>
+                `;
+                
+                // Add to course list
+                document.getElementById('course-list').appendChild(courseItem);
+                
+                // Add drag events to the new course
+                addDragEvents(courseItem);
+                
+                // Close the modal
+                courseModal.classList.add('hidden');
+                
+                // Reset the form
+                courseForm.reset();
+            });
+
+            // Save profile
+            profileForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Update profile information
+                document.getElementById('faculty-name').textContent = facultyFullName.value;
+                document.getElementById('sidebar-name').textContent = facultyFullName.value;
+                document.getElementById('sidebar-title').textContent = facultyTitle.value;
+                
+                // Update sidebar information
+                const sidebarEl = document.querySelector('.border-t');
+                sidebarEl.innerHTML = `
+                    <p class="text-gray-700 mb-2"><span class="font-semibold">Department:</span> ${facultyDepartment.value}</p>
+                    <p class="text-gray-700 mb-2"><span class="font-semibold">Email:</span> ${facultyEmail.value}</p>
+                    <p class="text-gray-700 mb-2"><span class="font-semibold">Office:</span> ${facultyOffice.value}</p>
+                    <p class="text-gray-700"><span class="font-semibold">Office Hours:</span> ${facultyHours.value}</p>
+                `;
+                
+                // Close the modal
+                profileModal.classList.add('hidden');
+            });
+
+            // Save schedule
+            saveScheduleBtn.addEventListener('click', function() {
+                const schedule = {};
+                const timeSlots = document.querySelectorAll('.time-slot');
+                
+                timeSlots.forEach(slot => {
+                    const day = slot.getAttribute('data-day');
+                    const time = slot.getAttribute('data-time');
+                      students.find(student => student.id === studentId).marks[assessmentIndex] = mark;
+                        calculateStudentTotal(studentId);
+                        updateStatistics();
+                    });
+                });
+            });
+       
+    </script>
+</body>
+</html>

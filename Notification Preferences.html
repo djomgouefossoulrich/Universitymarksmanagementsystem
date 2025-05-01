@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Communication Portal - Notification Preferences</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="bg-blue-600 text-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <i class="fas fa-school text-2xl mr-3"></i>
+                <h1 class="text-xl font-bold">School Communication Portal</h1>
+            </div>
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="#" class="hover:text-blue-200">Dashboard</a>
+                <a href="#" class="hover:text-blue-200">Messages</a>
+                <a href="#" class="hover:text-blue-200 font-bold">Notifications</a>
+                <a href="#" class="hover:text-blue-200">Calendar</a>
+                <div class="relative ml-3">
+                    <button id="userMenuButton" class="flex items-center focus:outline-none">
+                        <img class="h-8 w-8 rounded-full object-cover" src="/api/placeholder/40/40" alt="User profile">
+                        <span class="ml-2">John Doe</span>
+                        <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                    </button>
+                </div>
+            </div>
+            <button class="md:hidden text-white focus:outline-none">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex items-center mb-6">
+            <a href="#" class="text-blue-600 mr-2">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h2 class="text-2xl font-bold text-gray-800">Notification Preferences</h2>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Delivery Methods</h3>
+                <p class="text-gray-600 text-sm mb-4">Choose how you would like to receive notifications</p>
+                
+                <div class="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-md mb-3 bg-gray-50">
+                    <div>
+                        <p class="font-medium">Email</p>
+                        <p class="text-gray-600 text-sm">johndoe@example.com</p>
+                    </div>
+                    <div class="mt-2 md:mt-0">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer" checked id="emailToggle">
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-md mb-3 bg-gray-50">
+                    <div>
+                        <p class="font-medium">Text Message (SMS)</p>
+                        <p class="text-gray-600 text-sm">(555) 123-4567</p>
+                    </div>
+                    <div class="mt-2 md:mt-0">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer" checked id="smsToggle">
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-md mb-3 bg-gray-50">
+                    <div>
+                        <p class="font-medium">Push Notifications</p>
+                        <p class="text-gray-600 text-sm">On this device</p>
+                    </div>
+                    <div class="mt-2 md:mt-0">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer" checked id="pushToggle">
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="text-right">
+                    <button class="text-blue-600 text-sm font-medium hover:underline" id="editContactsBtn">
+                        Edit contact information
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Notification Categories</h3>
+            <p class="text-gray-600 text-sm mb-6">Select which types of notifications you'd like to receive</p>
+
+            <div class="space-y-6">
+                <!-- Announcements -->
+                <div class="border-b pb-5">
+                    <div class="flex justify-between items-center mb-3">
+                        <div>
+                            <h4 class="font-medium">School Announcements</h4>
+                            <p class="text-gray-500 text-sm">Important notifications from the school administration</p>
+                        </div>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer" checked id="announcementsToggle">
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                    <div class="ml-6 space-y-2">
+                        <div class="flex items-center">
+                            <input id="announcements-email" name="announcements-email" type="checkbox" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="announcements-email" class="ml-2 block text-sm text-gray-700">Email</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="announcements-sms" name="announcements-sms" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="announcements-sms" class="ml-2 block text-sm text-gray-700">SMS</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="announcements-push" name="announcements-push" type="checkbox" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="announcements-push" class="ml-2 block text-sm text-gray-700">Push</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Academic Updates -->
+                <div class="border-b pb-5">
+                    <div class="flex justify-between items-center mb-3">
+                        <div>
+                            <h4 class="font-medium">Academic Updates</h4>
+                            <p class="text-gray-500 text-sm">Grades, assignments, and academic performance</p>
+                        </div>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer" checked id="academicToggle">
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                    <div class="ml-6 space-y-2">
+                        <div class="flex items-center">
+                            <input id="academic-email" name="academic-email" type="checkbox" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="academic-email" class="ml-2 block text-sm text-gray-700">Email</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="academic-sms" name="academic-sms" type="checkbox" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="academic-sms" class="ml-2 block text-sm text-gray-700">SMS</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="academic-push" name="academic-push" type="checkbox" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="academic-push" class="ml-2 block text-sm text-gray-700">Push</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attendance -->
+                <div class="border-b pb-5">
+                    <div class="flex justify-between items-center mb-3">
+                        <div>
+                            <h4 class="font-medium">Attendance</h4>
+                            <p class="text-gray-500 text-sm">Absences, tardiness, and early dismissals</p>
+                        </div>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer" checked id="attendanceToggle">
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                    <div class="ml-6 space-y-2">
+                        <div class="flex items-center">
+                            <input id="attendance-email" name="attendance-email" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="attendance-email" class="ml-2 block text-sm text-gray-700">Email</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="attendance-sms" name="attendance-sms" type="checkbox" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="attendance-sms" class="ml-2 block text-sm text-gray-700">SMS</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="attendance-push" name="attendance-push" type="checkbox" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="attendance-push" class="ml-2 block text-sm text-gray-700">Push</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Events -->
+                <div class="border-b pb-5">
+                    <div class="flex justify-between items-center mb-3">
+                        <div>
+                            <h4 class="font-medium">Events & Activities</h4>
+                            <p class="text-gray-500 text-sm">School events, field trips, and extracurricular activities</p>
+                        </div>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer" checked id="eventsToggle">
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                    <div class="ml-6 space-y-2">
+                        <div class="flex items-center">
+                            <input id="events-email" name="events-email" type="checkbox" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="events-email" class="ml-2 block text-sm text-gray-700">Email</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="events-sms" name="events-sms" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="events-sms" class="ml-2 block text-sm text-gray-700">SMS</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="events-push" name="events-push" type="checkbox" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="events-push" class="ml-2 block text-sm text-gray-700">Push</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency Alerts -->
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <div>
+                            <h4 class="font-medium">Emergency Alerts</h4>
+                            <p class="text-gray-500 text-sm">School closures, emergencies, and urgent information</p>
+                        </div>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer" checked id="emergencyToggle" disabled>
+                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                    <div class="ml-6 space-y-2">
+                        <div class="flex items-center">
+                            <input id="emergency-email" name="emergency-email" type="checkbox" checked disabled class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="emergency-email" class="ml-2 block text-sm text-gray-700">Email</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="emergency-sms" name="emergency-sms" type="checkbox" checked disabled class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="emergency-sms" class="ml-2 block text-sm text-gray-700">SMS</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="emergency-push" name="emergency-push" type="checkbox" checked disabled class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="emergency-push" class="ml-2 block text-sm text-gray-700">Push</label>
+                        </div>
+                        <p class="text-xs text-gray-500 italic mt-1">Emergency alerts cannot be disabled for safety reasons</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Notification Time Preferences</h3>
+            <p class="text-gray-600 text-sm mb-6">Customize when you receive non-emergency notifications</p>
+
+            <div class="space-y-4">
+                <div>
+                    <label for="quietHours" class="block text-sm font-medium text-gray-700 mb-1">Quiet Hours</label>
+                    <p class="text-gray-500 text-sm mb-3">During quiet hours, only emergency notifications will be sent</p>
+                    <div class="flex flex-col sm:flex-row sm:space-x-4">
+                        <div class="mb-3 sm:mb-0">
+                            <label for="startTime" class="block text-sm text-gray-500 mb-1">Start Time</label>
+                            <input type="time" id="startTime" value="22:00" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label for="endTime" class="block text-sm text-gray-500 mb-1">End Time</label>
+                            <input type="time" id="endTime" value="07:00" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center mt-4">
+                    <input id="enableQuietHours" name="enableQuietHours" type="checkbox" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="enableQuietHours" class="ml-2 block text-sm text-gray-700">Enable quiet hours</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end space-x-4 mt-6">
+            <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                Cancel
+            </button>
+            <button id="saveButton" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                Save Preferences
+            </button>
+        </div>
+    </div>
+
+    <!-- Edit Contact Modal -->
+    <div id="editContactModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b">
+                <h3 class="text-lg font-medium text-gray-900">Edit Contact Information</h3>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <label for="emailInput" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <input type="email" id="emailInput" value="johndoe@example.com" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                </div>
+                <div class="mb-4">
+                    <label for="phoneInput" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <input type="tel" id="phoneInput" value="(555) 123-4567" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button id="cancelEditBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                        Cancel
+                    </button>
+                    <button id="saveContactBtn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Notification -->
+    <div id="successNotification" class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-md shadow-lg transform transition-transform duration-300 translate-y-24">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span>Your notification preferences have been saved!</span>
+        </div>
+    </div>
+
+    <script>
+        // Toggle delivery methods checkboxes based on main toggle
+        document.getElementById('emailToggle').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('[id$="-email"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.disabled = !this.checked;
+                if (!this.checked) checkbox.checked = false;
+            });
+        });
+
+        document.getElementById('smsToggle').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('[id$="-sms"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.disabled = !this.checked;
+                if (!this.checked) checkbox.checked = false;
+            });
+        });
+
+        document.getElementById('pushToggle').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('[id$="-push"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.disabled = !this.checked;
+                if (!this.checked) checkbox.checked = false;
+            });
+        });
+
+        // Toggle subcategory checkboxes based on main category toggle
+        const categoryToggles = ['announcements', 'academic', 'attendance', 'events'];
+        
+        categoryToggles.forEach(category => {
+            const toggle = document.getElementById(`${category}Toggle`);
+            toggle.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll(`[id^="${category}-"]`);
+                checkboxes.forEach(checkbox => {
+                    checkbox.disabled = !this.checked;
+                    if (!this.checked) checkbox.checked = false;
+                });
+            });
+        });
+
+        // Handle enable quiet hours
+        document.getElementById('enableQuietHours').addEventListener('change', function() {
+            document.getElementById('startTime').disabled = !this.checked;
+            document.getElementById('endTime').disabled = !this.checked;
+        });
+
+        // Handle contact info modal
+        document.getElementById('editContactsBtn').addEventListener('click', function() {
+            document.getElementById('editContactModal').classList.remove('hidden');
+        });
+
+        document.getElementById('cancelEditBtn').addEventListener('click', function() {
+            document.getElementById('editContactModal').classList.add('hidden');
+        });
+
+        document.getElementById('saveContactBtn').addEventListener('click', function() {
+            const emailInput = document.getElementById('emailInput').value;
+            const phoneInput = document.getElementById('phoneInput').value;
+            
+            // Update displayed contact info
+            document.querySelector('.flex.flex-col.md\\:flex-row.md\\:items-center.justify-between.p-4.border.rounded-md.mb-3.bg-gray-50:nth-child(1) .text-gray-600.text-sm').textContent = emailInput;
+            document.querySelector('.flex.flex-col.md\\:flex-row.md\\:items-center.justify-between.p-4.border.rounded-md.mb-3.bg-gray-50:nth-child(2) .text-gray-600.text-sm').textContent = phoneInput;
+            
+            document.getElementById('editContactModal').classList.add('hidden');
+        });
+
+        // Save button functionality
+        document.getElementById('saveButton').addEventListener('click', function() {
+            // Here you would normally save the data to a database
+            // For demo purposes, we'll just show a success notification
+            const notification = document.getElementById('successNotification');
+            notification.classList.remove('translate-y-24');
+            
+            setTimeout(() => {
+                notification.classList.add('translate-y-24');
+            }, 3000);
+        });
+
+        // Close notification when clicked
+        document.getElementById('successNotification').addEventListener('click', function() {
+            this.classList.add('translate-y-24');
+        });
+    </script>
+</body>
+</html>

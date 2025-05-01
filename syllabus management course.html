@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Syllabus Editor</title>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-6">
+  <div x-data="syllabusEditor()" class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow">
+    <div class="mb-6">
+      <h2 class="text-2xl font-bold text-gray-800 mb-2">Learning Outcomes</h2>
+
+      <template x-for="(outcome, index) in learningOutcomes" :key="index">
+        <div class="flex items-center mb-2">
+          <input type="text" x-model="learningOutcomes[index]" class="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Enter learning outcome...">
+          <button type="button" @click="learningOutcomes.splice(index, 1)" class="ml-2 text-red-600 hover:text-red-800">
+            ✖
+          </button>
+        </div>
+      </template>
+
+      <button type="button" @click="learningOutcomes.push('')" class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
+        ➕ Add Learning Outcome
+      </button>
+    </div>
+
+    <!-- Weekly Topics -->
+    <div>
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="text-2xl font-bold text-gray-800">Weekly Schedule</h2>
+        <button type="button" @click="showAddForm = !showAddForm" class="text-blue-600 hover:text-blue-800 text-sm">
+          ➕ Add Week
+        </button>
+      </div>
+
+      <!-- Add Form -->
+      <div x-show="showAddForm" x-transition class="bg-gray-50 p-4 rounded-lg mb-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+          <input type="number" x-model="newWeek.week" class="p-2 border rounded" placeholder="Week" />
+          <input type="text" x-model="newWeek.topic" class="p-2 border rounded" placeholder="Topic" />
+          <input type="text" x-model="newWeek.readings" class="p-2 border rounded" placeholder="Readings" />
+          <input type="text" x-model="newWeek.assignments" class="p-2 border rounded" placeholder="Assignments" />
+        </div>
+        <div class="text-right">
+          <button type="button" @click="showAddForm = false" class="mr-2 bg-gray-300 hover:bg-gray-400 px-3 py-1 rounded">Cancel</button>
+          <button type="button" @click="addWeek()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">Add</button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="text-left px-4 py-2 text-sm font-medium text-gray-600">Week</th>
+              <th class="text-left px-4 py-2 text-sm font-medium text-gray-600">Topic</th>
+              <th class="text-left px-4 py-2 text-sm font-medium text-gray-600">Readings</th>
+              <th class="text-left px-4 py-2 text-sm font-medium text-gray-600">Assignments</th>
+              <th class="text-right px-4 py-2 text-sm font-medium text-gray-600">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="(item, index) in weeklyTopics" :key="index">
+              <tr class="border-t">
+                <td class="px-4 py-2 text-sm text-gray-800" x-text="item.week"></td>
+                <td class="px-4 py-2 text-sm text-gray-800" x-text="item.topic"></td>
+                <td class="px-4 py-2 text-sm text-gray-800" x-text="item.readings"></td>
+                <td class="px-4 py-2 text-sm text-gray-800" x-text="item.assignments"></td>
+                <td class="px-4 py-2 text-right text-sm">
+                  <button type="button" @click="weeklyTopics.splice(index, 1)" class="text-red-600 hover:text-red-800">Delete</button>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function syllabusEditor() {
+      return {
+        learningOutcomes: [''],
+        weeklyTopics: [],
+        showAddForm: false,
+        newWeek: {
+          week: '',
+          topic: '',
+          readings: '',
+          assignments: ''
+        },
+        addWeek() {
+          if (this.newWeek.week && this.newWeek.topic) {
+            this.weeklyTopics.push({ ...this.newWeek });
+            this.newWeek = { week: '', topic: '', readings: '', assignments: '' };
+            this.showAddForm = false;
+          }
+        }
+      }
+    }
+  </script>
+</body>
+</html>

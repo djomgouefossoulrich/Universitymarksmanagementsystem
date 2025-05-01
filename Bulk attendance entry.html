@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Class Attendance Management System</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-center text-blue-800 mb-6">Class Attendance Management System</h1>
+    
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+      <h2 class="text-xl font-semibold mb-4">Class Information</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div>
+          <label class="block text-gray-700 mb-2" for="courseSelect">Course</label>
+          <select id="courseSelect" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Select Course</option>
+            <option value="CS101">CS101 - Introduction to Programming</option>
+            <option value="CS202">CS202 - Data Structures</option>
+            <option value="MATH101">MATH101 - Calculus I</option>
+            <option value="ENG205">ENG205 - Technical Writing</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-gray-700 mb-2" for="dateInput">Date</label>
+          <input type="date" id="dateInput" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block text-gray-700 mb-2" for="session">Session</label>
+          <select id="sessionSelect" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="morning">Morning (8:00 - 10:00)</option>
+            <option value="afternoon">Afternoon (1:00 - 3:00)</option>
+            <option value="evening">Evening (5:00 - 7:00)</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex justify-between items-center mb-4">
+        <div>
+          <button id="loadStudentsBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mr-2">Load Students</button>
+          <button id="importCsvBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">Import CSV</button>
+          <input type="file" id="csvFileInput" accept=".csv" class="hidden">
+        </div>
+        <div>
+          <input type="text" id="searchInput" placeholder="Search students..." class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Student Attendance</h2>
+        <div>
+          <button id="markAllPresentBtn" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 mr-2">Mark All Present</button>
+          <button id="markAllAbsentBtn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Mark All Absent</button>
+        </div>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white">
+          <thead>
+            <tr class="bg-gray-200 text-gray-700">
+              <th class="py-2 px-4 border-b text-left">Student ID</th>
+              <th class="py-2 px-4 border-b text-left">Name</th>
+              <th class="py-2 px-4 border-b text-center">Status</th>
+              <th class="py-2 px-4 border-b text-left">Notes</th>
+            </tr>
+          </thead>
+          <tbody id="studentTableBody">
+            <!-- Student rows will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+      
+      <div id="noStudentsMessage" class="text-center py-8 text-gray-500">
+        Please select a course and load students to mark attendance
+      </div>
+
+      <div class="mt-6 flex justify-end">
+        <button id="saveAttendanceBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700" disabled>Save Attendance</button>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <h2 class="text-xl font-semibold mb-4">Attendance Reports</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div>
+          <label class="block text-gray-700 mb-2" for="reportCourseSelect">Course</label>
+          <select id="reportCourseSelect" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Select Course</option>
+            <option value="CS101">CS101 - Introduction to Programming</option>
+            <option value="CS202">CS202 - Data Structures</option>
+            <option value="MATH101">MATH101 - Calculus I</option>
+            <option value="ENG205">ENG205 - Technical Writing</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-gray-700 mb-2" for="startDateInput">Start Date</label>
+          <input type="date" id="startDateInput" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block text-gray-700 mb-2" for="endDateInput">End Date</label>
+          <input type="date" id="endDateInput" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+      </div>
+      <div class="flex justify-end">
+        <button id="generateReportBtn" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">Generate Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+    <div class="fixed inset-0 bg-black opacity-50"></div>
+    <div class="bg-white rounded-lg p-8 z-10 max-w-md w-full">
+      <h3 class="text-xl font-bold text-green-600 mb-4">Success!</h3>
+      <p id="successMessage" class="text-gray-700 mb-6"></p>
+      <div class="flex justify-end">
+        <button id="closeModalBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mock student data for demonstration
+    const studentDatabase = {
+      'CS101': [
+        { id: 'CS101-001', name: 'John Smith' },
+        { id: 'CS101-002', name: 'Maria Garcia' },
+        { id: 'CS101-003', name: 'David Johnson' },
+        { id: 'CS101-004', name: 'Sarah Wilson' },
+        { id: 'CS101-005', name: 'Michael Brown' },
+        { id: 'CS101-006', name: 'Jennifer Lee' },
+        { id: 'CS101-007', name: 'Robert Taylor' },
+        { id: 'CS101-008', name: 'Lisa Anderson' },
+        { id: 'CS101-009', name: 'James Martin' },
+        { id: 'CS101-010', name: 'Emily White' },
+      ],
+      'CS202': [
+        { id: 'CS202-001', name: 'Daniel Chen' },
+        { id: 'CS202-002', name: 'Sophie Kim' },
+        { id: 'CS202-003', name: 'Kevin Patel' },
+        { id: 'CS202-004', name: 'Olivia Brown' },
+        { id: 'CS202-005', name: 'William Jones' },
+      ],
+      'MATH101': [
+        { id: 'MATH101-001', name: 'Thomas Wilson' },
+        { id: 'MATH101-002', name: 'Anna Rodriguez' },
+        { id: 'MATH101-003', name: 'Alex Nguyen' },
+        { id: 'MATH101-004', name: 'Emma Davis' },
+        { id: 'MATH101-005', name: 'Ryan Miller' },
+        { id: 'MATH101-006', name: 'Isabella Moore' },
+      ],
+      'ENG205': [
+        { id: 'ENG205-001', name: 'Catherine Jackson' },
+        { id: 'ENG205-002', name: 'Brandon Taylor' },
+        { id: 'ENG205-003', name: 'Julia Harris' },
+        { id: 'ENG205-004', name: 'Christopher Lee' },
+      ]
+    };
+
+    // Store attendance records
+    let attendanceRecords = [];
+    let currentStudents = [];
+
+    // DOM Elements
+    const courseSelect = document.getElementById('courseSelect');
+    const dateInput = document.getElementById('dateInput');
+    const sessionSelect = document.getElementById('sessionSelect');
+    const loadStudentsBtn = document.getElementById('loadStudentsBtn');
+    const importCsvBtn = document.getElementById('importCsvBtn');
+    const csvFileInput = document.getElementById('csvFileInput');
+    const searchInput = document.getElementById('searchInput');
+    const studentTableBody = document.getElementById('studentTableBody');
+    const noStudentsMessage = document.getElementById('noStudentsMessage');
+    const markAllPresentBtn = document.getElementById('markAllPresentBtn');
+    const markAllAbsentBtn = document.getElementById('markAllAbsentBtn');
+    const saveAttendanceBtn = document.getElementById('saveAttendanceBtn');
+    const generateReportBtn = document.getElementById('generateReportBtn');
+    const successModal = document.getElementById('successModal');
+    const successMessage = document.getElementById('successMessage');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    // Set default date to today
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
+    dateInput.value = formattedDate;
+
+    // Event Listeners
+    loadStudentsBtn.addEventListener('click', loadStudents);
+    importCsvBtn.addEventListener('click', () => csvFileInput.click());
+    csvFileInput.addEventListener('change', handleCsvImport);
+    searchInput.addEventListener('input', filterStudents);
+    markAllPresentBtn.addEventListener('click', () => markAllAttendance('present'));
+    markAllAbsentBtn.addEventListener('click', () => markAllAttendance('absent'));
+    saveAttendanceBtn.addEventListener('click', saveAttendance);
+    generateReportBtn.addEventListener('click', generateReport);
+    closeModalBtn.addEventListener('click', () => successModal.classList.add('hidden'));
+
+    // Function to load students based on selected course
+    function loadStudents() {
+      const selectedCourse = courseSelect.value;
+      
+      if (!selectedCourse) {
+        alert('Please select a course first');
+        return;
+      }
+      
+      if (!dateInput.value) {
+        alert('Please select a date');
+        return;
+      }
+
+      currentStudents = [...studentDatabase[selectedCourse]];
+      displayStudents(currentStudents);
+      noStudentsMessage.style.display = 'none';
+      saveAttendanceBtn.disabled = false;
+    }
+
+    // Function to display students in the table
+    function displayStudents(students) {
+      studentTableBody.innerHTML = '';
+      
+      students.forEach(student => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-100';
+        row.innerHTML = `
+          <td class="py-2 px-4 border-b">${student.id}</td>
+          <td class="py-2 px-4 border-b">${student.name}</td>
+          <td class="py-2 px-4 border-b text-center">
+            <div class="inline-flex">
+              <label class="inline-flex items-center mr-4">
+                <input type="radio" name="status_${student.id}" value="present" class="form-radio h-5 w-5 text-green-600">
+                <span class="ml-2 text-green-600">Present</span>
+              </label>
+              <label class="inline-flex items-center mr-4">
+                <input type="radio" name="status_${student.id}" value="absent" class="form-radio h-5 w-5 text-red-600">
+                <span class="ml-2 text-red-600">Absent</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="radio" name="status_${student.id}" value="late" class="form-radio h-5 w-5 text-yellow-600">
+                <span class="ml-2 text-yellow-600">Late</span>
+              </label>
+            </div>
+          </td>
+          <td class="py-2 px-4 border-b">
+            <input type="text" class="notes w-full px-2 py-1 border rounded" placeholder="Add notes">
+          </td>
+        `;
+        studentTableBody.appendChild(row);
+      });
+    }
+
+    // Function to handle CSV import
+    function handleCsvImport(event) {
+      const file = event.target.files[0];
+      
+      if (!file) return;
+      
+      if (!courseSelect.value) {
+        alert('Please select a course first');
+        csvFileInput.value = '';
+        return;
+      }
+
+      Papa.parse(file, {
+        header: true,
+        complete: function(results) {
+          if (results.data && results.data.length > 0) {
+            // Check if CSV has required headers
+            const firstRow = results.data[0];
+            if (!firstRow.id || !firstRow.name) {
+              alert('CSV file must contain "id" and "name" columns');
+              csvFileInput.value = '';
+              return;
+            }
+
+            // Process the imported students
+            currentStudents = results.data.map(row => ({
+              id: row.id,
+              name: row.name
+            })).filter(student => student.id && student.name);
+
+            if (currentStudents.length > 0) {
+              displayStudents(currentStudents);
+              noStudentsMessage.style.display = 'none';
+              saveAttendanceBtn.disabled = false;
+              
+              showSuccessModal(`Successfully imported ${currentStudents.length} students from CSV`);
+            } else {
+              alert('No valid student data found in CSV file');
+            }
+          }
+          csvFileInput.value = '';
+        },
+        error: function() {
+          alert('Error parsing CSV file');
+          csvFileInput.value = '';
+        }
+      });
+    }
+
+    // Function to filter students based on search input
+    function filterStudents() {
+      const searchTerm = searchInput.value.toLowerCase();
+      
+      if (!currentStudents.length) return;
+      
+      const filteredStudents = currentStudents.filter(student => 
+        student.id.toLowerCase().includes(searchTerm) || 
+        student.name.toLowerCase().includes(searchTerm)
+      );
+      
+      displayStudents(filteredStudents);
+    }
+
+    // Function to mark all students with the same attendance status
+    function markAllAttendance(status) {
+      if (!currentStudents.length) return;
+      
+      const radios = document.querySelectorAll(`input[type="radio"][value="${status}"]`);
+      radios.forEach(radio => {
+        radio.checked = true;
+      });
+    }
+
+    // Function to save attendance
+    function saveAttendance() {
+      const selectedCourse = courseSelect.value;
+      const selectedDate = dateInput.value;
+      const selectedSession = sessionSelect.value;
+      
+      if (!selectedCourse || !selectedDate || !selectedSession) {
+        alert('Please fill in all course information fields');
+        return;
+      }
+      
+      if (!currentStudents.length) {
+        alert('No students loaded');
+        return;
+      }
+      
+      const attendanceData = [];
+      let missingStatus = false;
+      
+      currentStudents.forEach((student, index) => {
+        const statusRadios = document.getElementsByName(`status_${student.id}`);
+        let status = null;
+        
+        statusRadios.forEach(radio => {
+          if (radio.checked) {
+            status = radio.value;
+          }
+        });
+        
+        if (!status) {
+          missingStatus = true;
+          return;
+        }
+        
+        const notesInput = document.querySelectorAll('.notes')[index];
+        
+        attendanceData.push({
+          course: selectedCourse,
+          date: selectedDate,
+          session: selectedSession,
+          studentId: student.id,
+          studentName: student.name,
+          status: status,
+          notes: notesInput ? notesInput.value : ''
+        });
+      });
+      
+      if (missingStatus) {
+        alert('Please mark attendance status for all students');
+        return;
+      }
+      
+      // In a real application, you would send this data to a server
+      // For this demo, we'll store it in memory and show success message
+      attendanceRecords = [...attendanceRecords, ...attendanceData];
+      
+      showSuccessModal(`Attendance saved successfully for ${attendanceData.length} students in ${selectedCourse} on ${selectedDate}`);
+      
+      // Optional: Clear form for next entry
+      // clearForm();
+    }
+
+    // Function to generate attendance report
+    function generateReport() {
+      const course = document.getElementById('reportCourseSelect').value;
+      const startDate = document.getElementById('startDateInput').value;
+      const endDate = document.getElementById('endDateInput').value;
+      
+      if (!course || !startDate || !endDate) {
+        alert('Please fill in all report fields');
+        return;
+      }
+
+      // Filter records based on criteria
+      const filteredRecords = attendanceRecords.filter(record => {
+        return record.course === course && 
+               record.date >= startDate && 
+               record.date <= endDate;
+      });
+
+      if (filteredRecords.length === 0) {
+        alert('No attendance records found for the selected criteria');
+        return;
+      }
+
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(filteredRecords);
+      
+      // Add the worksheet to the workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Attendance Report');
+      
+      // Generate Excel file
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+      
+      // Convert to blob and save
+      function s2ab(s) {
+        const buf = new ArrayBuffer(s.length);
+        const view = new Uint8Array(buf);
+        for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+        return buf;
+      }
+      
+      const blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
+      const fileName = `${course}_Attendance_${startDate}_to_${endDate}.xlsx`;
+      
+      saveAs(blob, fileName);
+      showSuccessModal(`Report generated successfully with ${filteredRecords.length} records`);
+    }
+
+    // Function to show success modal
+    function showSuccessModal(message) {
+      successMessage.textContent = message;
+      successModal.classList.remove('hidden');
+    }
+
+    // Function to clear form (optional)
+    function clearForm() {
+      currentStudents = [];
+      studentTableBody.innerHTML = '';
+      noStudentsMessage.style.display = 'block';
+      saveAttendanceBtn.disabled = true;
+      searchInput.value = '';
+      courseSelect.selectedIndex = 0;
+      dateInput.value = formattedDate;
+      sessionSelect.selectedIndex = 0;
+    }
+  </script>
+</body>
+</html>

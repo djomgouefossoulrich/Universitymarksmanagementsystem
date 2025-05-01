@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Communication Portal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        .message-sent {
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="bg-blue-700 text-white rounded-lg shadow-lg p-6">
+                <h1 class="text-3xl font-bold">Parent Communication Portal</h1>
+                <p class="text-lg mt-2">Message interface to faculty</p>
+            </div>
+        </header>
+
+        <!-- Main content -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Left sidebar - Teacher list -->
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">Faculty Members</h2>
+                <div class="space-y-2" id="teacherList">
+                    <div class="flex items-center p-2 hover:bg-blue-50 rounded cursor-pointer teacher-item" data-id="1" data-name="Ms. Johnson">
+                        <div class="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center mr-3">
+                            <span class="text-blue-700 font-bold">MJ</span>
+                        </div>
+                        <span>Ms. Johnson (Math)</span>
+                    </div>
+                    <div class="flex items-center p-2 hover:bg-blue-50 rounded cursor-pointer teacher-item" data-id="2" data-name="Mr. Smith">
+                        <div class="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center mr-3">
+                            <span class="text-green-700 font-bold">MS</span>
+                        </div>
+                        <span>Mr. Smith (Science)</span>
+                    </div>
+                    <div class="flex items-center p-2 hover:bg-blue-50 rounded cursor-pointer teacher-item" data-id="3" data-name="Mrs. Davis">
+                        <div class="w-10 h-10 rounded-full bg-purple-200 flex items-center justify-center mr-3">
+                            <span class="text-purple-700 font-bold">MD</span>
+                        </div>
+                        <span>Mrs. Davis (English)</span>
+                    </div>
+                    <div class="flex items-center p-2 hover:bg-blue-50 rounded cursor-pointer teacher-item" data-id="4" data-name="Mr. Wilson">
+                        <div class="w-10 h-10 rounded-full bg-red-200 flex items-center justify-center mr-3">
+                            <span class="text-red-700 font-bold">MW</span>
+                        </div>
+                        <span>Mr. Wilson (History)</span>
+                    </div>
+                    <div class="flex items-center p-2 hover:bg-blue-50 rounded cursor-pointer teacher-item" data-id="5" data-name="Ms. Thompson">
+                        <div class="w-10 h-10 rounded-full bg-yellow-200 flex items-center justify-center mr-3">
+                            <span class="text-yellow-700 font-bold">MT</span>
+                        </div>
+                        <span>Ms. Thompson (Art)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle - Message compose area -->
+            <div class="bg-white rounded-lg shadow-md p-4 md:col-span-2">
+                <div class="mb-4 border-b pb-2 flex justify-between items-center">
+                    <h2 class="text-xl font-semibold text-gray-800">New Message</h2>
+                    <span class="text-sm text-gray-500" id="recipientDisplay">Select a recipient</span>
+                </div>
+
+                <form id="messageForm" class="space-y-4">
+                    <div class="mb-4">
+                        <label for="subject" class="block text-gray-700 font-medium mb-2">Subject</label>
+                        <input type="text" id="subject" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter message subject">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="message" class="block text-gray-700 font-medium mb-2">Message</label>
+                        <textarea id="message" rows="6" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type your message here..."></textarea>
+                    </div>
+
+                    <div class="flex items-center space-x-4">
+                        <button type="button" id="attachButton" class="flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                            </svg>
+                            Attach File
+                        </button>
+                        <button type="submit" id="sendButton" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            Send Message
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Message history -->
+                <div class="mt-8">
+                    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Recent Messages</h3>
+                    <div id="messageHistory" class="space-y-4">
+                        <!-- Messages will be inserted here via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Dialog -->
+    <div id="confirmationDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg p-6 max-w-md">
+            <h3 class="text-xl font-bold mb-4">Message Sent</h3>
+            <p>Your message has been sent successfully to <span id="sentTeacherName"></span>.</p>
+            <div class="mt-6 flex justify-end">
+                <button id="closeDialog" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let selectedTeacherId = null;
+        let selectedTeacherName = null;
+
+        // Initialize the page
+        $(document).ready(function() {
+            // Handle teacher selection
+            $('.teacher-item').click(function() {
+                // Remove active class from all teachers
+                $('.teacher-item').removeClass('bg-blue-100');
+                
+                // Add active class to selected teacher
+                $(this).addClass('bg-blue-100');
+                
+                // Store selected teacher info
+                selectedTeacherId = $(this).data('id');
+                selectedTeacherName = $(this).data('name');
+                
+                // Update the recipient display
+                $('#recipientDisplay').text('To: ' + selectedTeacherName);
+                
+                // Enable the send button
+                $('#sendButton').prop('disabled', false);
+            });
+
+            // Handle message form submission
+            $('#messageForm').submit(function(e) {
+                e.preventDefault();
+                
+                if (!selectedTeacherId) {
+                    alert('Please select a recipient');
+                    return;
+                }
+                
+                const subject = $('#subject').val().trim();
+                const messageText = $('#message').val().trim();
+                
+                if (!subject) {
+                    alert('Please enter a subject');
+                    return;
+                }
+                
+                if (!messageText) {
+                    alert('Please enter a message');
+                    return;
+                }
+                
+                // In a real application, here you would send the message to the server
+                // For this demo, we'll just add it to the message history
+                sendMessage(selectedTeacherId, selectedTeacherName, subject, messageText);
+                
+                // Show confirmation dialog
+                $('#sentTeacherName').text(selectedTeacherName);
+                $('#confirmationDialog').removeClass('hidden');
+                
+                // Clear the form
+                $('#subject').val('');
+                $('#message').val('');
+            });
+            
+            // Close confirmation dialog
+            $('#closeDialog').click(function() {
+                $('#confirmationDialog').addClass('hidden');
+            });
+            
+            // Handle attachment button (this would typically open a file picker)
+            $('#attachButton').click(function() {
+                alert('File attachment feature would open here');
+                // In a real implementation, you would open a file picker here
+            });
+        });
+
+        // Function to send a message (simulate)
+        function sendMessage(teacherId, teacherName, subject, message) {
+            // Get current date and time
+            const now = new Date();
+            const dateString = now.toLocaleDateString();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            // Create a new message element
+            const messageHtml = `
+                <div class="p-4 border rounded-lg bg-blue-50 message-sent">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-semibold">${subject}</h4>
+                            <p class="text-sm text-gray-500">To: ${teacherName}</p>
+                        </div>
+                        <span class="text-xs text-gray-500">${dateString} at ${timeString}</span>
+                    </div>
+                    <p class="mt-2">${message}</p>
+                </div>
+            `;
+            
+            // Add to message history
+            $('#messageHistory').prepend(messageHtml);
+        }
+    </script>
+</body>
+</html>

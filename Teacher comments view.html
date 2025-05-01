@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Result Publication Controls</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-blue-800 text-white shadow-lg">
+            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold">School Management System</h1>
+                    <p class="text-sm">Exam Controller Panel</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="currentDateTime" class="hidden md:block"></span>
+                    <div class="relative">
+                        <button class="flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+                                <span class="font-semibold">EC</span>
+                            </div>
+                            <span>Exam Controller</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 py-8">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Result Publication Controls</h2>
+                <p class="text-gray-600">Manage the publication settings for examination results</p>
+            </div>
+
+            <!-- Control Panel -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- Academic Year Selection -->
+                    <div>
+                        <label for="academicYear" class="block text-sm font-medium text-gray-700 mb-1">Academic Year</label>
+                        <select id="academicYear" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="2024-2025">2024-2025</option>
+                            <option value="2023-2024">2023-2024</option>
+                            <option value="2022-2023">2022-2023</option>
+                        </select>
+                    </div>
+
+                    <!-- Term/Semester Selection -->
+                    <div>
+                        <label for="term" class="block text-sm font-medium text-gray-700 mb-1">Term/Semester</label>
+                        <select id="term" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="1">First Term</option>
+                            <option value="2">Second Term</option>
+                            <option value="3">Third Term</option>
+                        </select>
+                    </div>
+
+                    <!-- Exam Type Selection -->
+                    <div>
+                        <label for="examType" class="block text-sm font-medium text-gray-700 mb-1">Exam Type</label>
+                        <select id="examType" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="final">Final Examination</option>
+                            <option value="midterm">Mid-term Examination</option>
+                            <option value="monthly">Monthly Test</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 my-6"></div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Classes Section -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Classes</h3>
+                        <div class="bg-gray-50 p-4 rounded-md h-64 overflow-y-auto">
+                            <div class="space-y-2">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="selectAllClasses" class="mr-2 h-4 w-4 text-blue-600 rounded">
+                                    <label for="selectAllClasses" class="font-medium">Select All Classes</label>
+                                </div>
+                                <div class="border-t border-gray-200 my-2"></div>
+                                <div id="classesList" class="pl-2 space-y-2">
+                                    <!-- Classes will be dynamically inserted here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section Controls -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Publication Settings</h3>
+                        <div class="bg-gray-50 p-4 rounded-md">
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="publishDate" class="block text-sm font-medium text-gray-700 mb-1">Publication Date & Time</label>
+                                    <input type="datetime-local" id="publishDate" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div class="flex flex-col space-y-2">
+                                    <label class="text-sm font-medium text-gray-700">Access Controls</label>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="studentAccess" class="mr-2 h-4 w-4 text-blue-600 rounded">
+                                        <label for="studentAccess">Student Portal Access</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="parentAccess" class="mr-2 h-4 w-4 text-blue-600 rounded">
+                                        <label for="parentAccess">Parent Portal Access</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="teacherAccess" class="mr-2 h-4 w-4 text-blue-600 rounded">
+                                        <label for="teacherAccess">Teacher Portal Access</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="smsNotification" class="mr-2 h-4 w-4 text-blue-600 rounded">
+                                        <label for="smsNotification">Send SMS Notifications</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="emailNotification" class="mr-2 h-4 w-4 text-blue-600 rounded">
+                                        <label for="emailNotification">Send Email Notifications</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 my-6"></div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">Content Controls</h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 p-4 rounded-md">
+                            <h4 class="font-medium text-gray-700 mb-2">Display Elements</h4>
+                            <div class="space-y-2">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="showGrades" class="mr-2 h-4 w-4 text-blue-600 rounded" checked>
+                                    <label for="showGrades">Show Grades</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="showPercentages" class="mr-2 h-4 w-4 text-blue-600 rounded" checked>
+                                    <label for="showPercentages">Show Percentages</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="showRawMarks" class="mr-2 h-4 w-4 text-blue-600 rounded" checked>
+                                    <label for="showRawMarks">Show Raw Marks</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="showRank" class="mr-2 h-4 w-4 text-blue-600 rounded" checked>
+                                    <label for="showRank">Show Class Rank</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="showComments" class="mr-2 h-4 w-4 text-blue-600 rounded" checked>
+                                    <label for="showComments">Show Teacher Comments</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-md">
+                            <h4 class="font-medium text-gray-700 mb-2">Result Status</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <select id="resultStatus" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="draft">Draft (Internal Only)</option>
+                                        <option value="provisional">Provisional Results</option>
+                                        <option value="final">Final Results</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="resultMessage" class="block text-sm font-medium text-gray-700 mb-1">Announcement Message</label>
+                                    <textarea id="resultMessage" rows="3" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter a message to display with the results..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Publication Status -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">Current Publication Status</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Class</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Term</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Exam Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Published Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="publicationStatus">
+                            <!-- Status rows will be added dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-4 justify-end">
+                <button id="previewButton" class="bg-indigo-100 text-indigo-700 px-6 py-2 rounded-md font-medium hover:bg-indigo-200 transition">
+                    Preview Results
+                </button>
+                <button id="saveButton" class="bg-gray-500 text-white px-6 py-2 rounded-md font-medium hover:bg-gray-600 transition">
+                    Save as Draft
+                </button>
+                <button id="scheduleButton" class="bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700 transition">
+                    Schedule Publication
+                </button>
+                <button id="publishButton" class="bg-green-600 text-white px-6 py-2 rounded-md font-medium hover:bg-green-700 transition">
+                    Publish Now
+                </button>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-4 mt-8">
+            <div class="container mx-auto px-4 text-center text-sm">
+                <p>&copy; 2025 School Management System. All rights reserved.</p>
+            </div>
+        </footer>
+
+        <!-- Modals -->
+        <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Confirm Publication</h3>
+                <p class="text-gray-600 mb-6">Are you sure you want to publish the selected class results? This action cannot be undone.</p>
+                <div id="confirmationDetails" class="bg-gray-50 p-3 rounded-md mb-6 text-sm">
+                    <!-- Details will be inserted dynamically -->
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button id="cancelPublication" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition">Cancel</button>
+                    <button id="confirmPublication" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">Confirm Publication</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data
+        const classes = [
+            { id: 1, name: "Grade 1" },
+            { id: 2, name: "Grade 2" },
+            { id: 3, name: "Grade 3" },
+            { id: 4, name: "Grade 4" },
+            { id: 5, name: "Grade 5" },
+            { id: 6, name: "Grade 6" },
+            { id: 7, name: "Grade 7" },
+            { id: 8, name: "Grade 8" },
+            { id: 9, name: "Grade 9" },
+            { id: 10, name: "Grade 10" },
+            { id: 11, name: "Grade 11" },
+            { id: 12, name: "Grade 12" }
+        ];
+
+        const publicationData = [
+            { id: 1, class: "Grade 12", term: "First Term", examType: "Final Examination", status: "Published", date: "2025-04-15 14:30" },
+            { id: 2, class: "Grade 11", term: "First Term", examType: "Final Examination", status: "Published", date: "2025-04-15 14:30" },
+            { id: 3, class: "Grade 10", term: "First Term", examType: "Final Examination", status: "Draft", date: "-" },
+            { id: 4, class: "Grade 9", term: "First Term", examType: "Mid-term Examination", status: "Scheduled", date: "2025-04-28 09:00" }
+        ];
+
+        // DOM Elements
+        const classesListEl = document.getElementById('classesList');
+        const selectAllClassesEl = document.getElementById('selectAllClasses');
+        const publicationStatusEl = document.getElementById('publicationStatus');
+        const currentDateTimeEl = document.getElementById('currentDateTime');
+        const publishButton = document.getElementById('publishButton');
+        const scheduleButton = document.getElementById('scheduleButton');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const confirmationDetails = document.getElementById('confirmationDetails');
+        const cancelPublication = document.getElementById('cancelPublication');
+        const confirmPublication = document.getElementById('confirmPublication');
+        const previewButton = document.getElementById('previewButton');
+        const saveButton = document.getElementById('saveButton');
+
+        // Initialize date and time
+        function updateDateTime() {
+            const now = moment();
+            currentDateTimeEl.textContent = now.format('MMMM D, YYYY | h:mm A');
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 60000);
+
+        // Populate classes
+        function populateClasses() {
+            classesListEl.innerHTML = '';
+            classes.forEach(cls => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center';
+                div.innerHTML = `
+                    <input type="checkbox" id="class${cls.id}" class="class-checkbox mr-2 h-4 w-4 text-blue-600 rounded" value="${cls.id}">
+                    <label for="class${cls.id}">${cls.name}</label>
+                `;
+                classesListEl.appendChild(div);
+            });
+
+            // Add event listeners to class checkboxes
+            document.querySelectorAll('.class-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', updateSelectAllCheckbox);
+            });
+        }
+
+        // Select all classes functionality
+        selectAllClassesEl.addEventListener('change', function() {
+            const isChecked = this.checked;
+            document.querySelectorAll('.class-checkbox').forEach(checkbox => {
+                checkbox.checked = isChecked;
+            });
+        });
+
+        function updateSelectAllCheckbox() {
+            const checkboxes = document.querySelectorAll('.class-checkbox');
+            const checkedBoxes = document.querySelectorAll('.class-checkbox:checked');
+            selectAllClassesEl.checked = checkboxes.length === checkedBoxes.length;
+        }
+
+        // Populate publication status table
+        function populatePublicationStatus() {
+            publicationStatusEl.innerHTML = '';
+            publicationData.forEach(item => {
+                const tr = document.createElement('tr');
+                
+                let statusClass = 'bg-gray-100 text-gray-800';
+                if (item.status === 'Published') {
+                    statusClass = 'bg-green-100 text-green-800';
+                } else if (item.status === 'Scheduled') {
+                    statusClass = 'bg-blue-100 text-blue-800';
+                }
+                
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.class}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.term}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.examType}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                            ${item.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.date}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex space-x-2">
+                            <button class="text-indigo-600 hover:text-indigo-900">View</button>
+                            ${item.status !== 'Published' ? `<button class="text-red-600 hover:text-red-900">Delete</button>` : ''}
+                            ${item.status === 'Published' ? `<button class="text-orange-600 hover:text-orange-900">Unpublish</button>` : ''}
+                        </div>
+                    </td>
+                `;
+                publicationStatusEl.appendChild(tr);
+            });
+        }
+
+        // Set default publication date to tomorrow at 9 AM
+        function setDefaultPublicationDate() {
+            const tomorrow = moment().add(1, 'days').hour(9).minute(0);
+            document.getElementById('publishDate').value = tomorrow.format('YYYY-MM-DDTHH:mm');
+        }
+
+        // Open confirmation modal with details
+        function openConfirmationModal(isImmediate) {
+            // Get selected classes
+            const selectedClasses = [];
+            document.querySelectorAll('.class-checkbox:checked').forEach(checkbox => {
+                const classId = checkbox.value;
+                const className = classes.find(c => c.id == classId).name;
+                selectedClasses.push(className);
+            });
+
+            if (selectedClasses.length === 0) {
+                alert('Please select at least one class to publish results for.');
+                return;
+            }
+
+            const academicYear = document.getElementById('academicYear').value;
+            const term = document.getElementById('term').options[document.getElementById('term').selectedIndex].text;
+            const examType = document.getElementById('examType').options[document.getElementById('examType').selectedIndex].text;
+            const publishDate = document.getElementById('publishDate').value;
+            const formattedDate = moment(publishDate).format('MMMM D, YYYY [at] h:mm A');
+
+            confirmationDetails.innerHTML = `
+                <p><strong>Academic Year:</strong> ${academicYear}</p>
+                <p><strong>Term:</strong> ${term}</p>
+                <p><strong>Exam Type:</strong> ${examType}</p>
+                <p><strong>Classes:</strong> ${selectedClasses.join(', ')}</p>
+                <p><strong>${isImmediate ? 'Publication Time:' : 'Scheduled for:'}</strong> ${isImmediate ? 'Immediate' : formattedDate}</p>
+            `;
+
+            confirmationModal.classList.remove('hidden');
+        }
+
+        // Button event listeners
+        publishButton.addEventListener('click', function() {
+            openConfirmationModal(true);
+        });
+
+        scheduleButton.addEventListener('click', function() {
+            openConfirmationModal(false);
+        });
+
+        cancelPublication.addEventListener('click', function() {
+            confirmationModal.classList.add('hidden');
+        });
+
+        confirmPublication.addEventListener('click', function() {
+            // Simulate successful publication
+            confirmationModal.classList.add('hidden');
+            
+            // Add success message (in real app, you'd update the database first)
+            const selectedClasses = document.querySelectorAll('.class-checkbox:checked');
+            alert(`Results ${publishButton.textContent.trim() === 'Publish Now' ? 'published' : 'scheduled'} successfully for ${selectedClasses.length} classes!`);
+            
+            // In a real application, you would update the publication status table
+            // and potentially refresh data from the server
+        });
+
+        previewButton.addEventListener('click', function() {
+            alert('Preview functionality would open a new window showing how results will appear to users.');
+        });
+
+        saveButton.addEventListener('click', function() {
+            alert('Publication settings saved as draft!');
+        });
+
+        // Initialize the page
+        function initPage() {
+            populateClasses();
+            populatePublicationStatus();
+            setDefaultPublicationDate();
+        }
+
+        // Run initialization when DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

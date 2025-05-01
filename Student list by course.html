@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.10.3/cdn.min.js" defer></script>
+</head>
+<body class="bg-gray-100 min-h-screen" x-data="studentManagement()">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Student Management System</h1>
+            <p class="text-gray-600">Manage students by course</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Courses Section -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Courses</h2>
+                
+                <!-- Add Course Form -->
+                <form @submit.prevent="addCourse" class="mb-6">
+                    <div class="mb-4">
+                        <label for="courseId" class="block text-sm font-medium text-gray-700 mb-1">Course ID</label>
+                        <input type="text" id="courseId" x-model="newCourse.id" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="courseName" class="block text-sm font-medium text-gray-700 mb-1">Course Name</label>
+                        <input type="text" id="courseName" x-model="newCourse.name" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                    </div>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">Add Course</button>
+                </form>
+                
+                <!-- Course List -->
+                <div class="space-y-2">
+                    <template x-for="course in courses" :key="course.id">
+                        <div class="p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
+                             :class="{'bg-blue-50 border-blue-300': selectedCourse && selectedCourse.id === course.id}"
+                             @click="selectCourse(course)">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <span class="font-semibold" x-text="course.id"></span>: 
+                                    <span x-text="course.name"></span>
+                                    <div class="text-sm text-gray-500" x-text="`${course.students.length} students`"></div>
+                                </div>
+                                <button @click.stop="deleteCourse(course.id)" class="text-red-500 hover:text-red-700">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Student Management Section -->
+            <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+                <template x-if="!selectedCourse">
+                    <div class="flex flex-col items-center justify-center h-64">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        <p class="text-gray-500">Select a course to manage students</p>
+                    </div>
+                </template>
+
+                <template x-if="selectedCourse">
+                    <div>
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-semibold text-gray-800" x-text="`${selectedCourse.id}: ${selectedCourse.name}`"></h2>
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium" x-text="`${selectedCourse.students.length} students`"></span>
+                        </div>
+
+                        <!-- Add Student Form -->
+                        <form @submit.prevent="addStudent" class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <h3 class="text-lg font-medium mb-3">Add New Student</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="studentId" class="block text-sm font-medium text-gray-700 mb-1">Student ID</label>
+                                    <input type="text" id="studentId" x-model="newStudent.id" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                                </div>
+                                <div>
+                                    <label for="studentName" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                    <input type="text" id="studentName" x-model="newStudent.name" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                                </div>
+                                <div>
+                                    <label for="studentEmail" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                    <input type="email" id="studentEmail" x-model="newStudent.email" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                                </div>
+                                <div>
+                                    <label for="studentGrade" class="block text-sm font-medium text-gray-700 mb-1">Grade (optional)</label>
+                                    <input type="text" id="studentGrade" x-model="newStudent.grade" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">Add Student</button>
+                            </div>
+                        </form>
+
+                        <!-- Student List -->
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">ID</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">Name</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">Email</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">Grade</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <template x-for="(student, index) in selectedCourse.students" :key="student.id">
+                                        <tr>
+                                            <td class="py-3 px-4 text-sm text-gray-800" x-text="student.id"></td>
+                                            <td class="py-3 px-4 text-sm text-gray-800" x-text="student.name"></td>
+                                            <td class="py-3 px-4 text-sm text-gray-800" x-text="student.email"></td>
+                                            <td class="py-3 px-4 text-sm">
+                                                <template x-if="editingStudentIndex === index">
+                                                    <input type="text" x-model="editingStudent.grade" class="px-2 py-1 border border-gray-300 rounded w-24">
+                                                </template>
+                                                <template x-if="editingStudentIndex !== index">
+                                                    <span x-text="student.grade || '-'" :class="{'text-gray-400': !student.grade}"></span>
+                                                </template>
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <template x-if="editingStudentIndex === index">
+                                                    <div class="flex space-x-2">
+                                                        <button @click="saveStudentEdit()" class="text-green-600 hover:text-green-700">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                        </button>
+                                                        <button @click="cancelStudentEdit()" class="text-gray-600 hover:text-gray-700">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </template>
+                                                <template x-if="editingStudentIndex !== index">
+                                                    <div class="flex space-x-2">
+                                                        <button @click="editStudent(index)" class="text-blue-600 hover:text-blue-700">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                            </svg>
+                                                        </button>
+                                                        <button @click="removeStudent(student.id)" class="text-red-600 hover:text-red-700">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </template>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="selectedCourse.students.length === 0">
+                                        <tr>
+                                            <td colspan="5" class="py-4 px-4 text-center text-gray-500">No students enrolled in this course yet</td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Export/Import Controls -->
+        <div class="mt-8 p-4 bg-white rounded-lg shadow">
+            <h2 class="text-lg font-semibold mb-4">Data Management</h2>
+            <div class="flex flex-wrap gap-4">
+                <button @click="exportData" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition">
+                    Export Data
+                </button>
+                <div class="relative">
+                    <label for="importData" class="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition cursor-pointer">
+                        Import Data
+                    </label>
+                    <input id="importData" type="file" accept=".json" @change="importData" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                </div>
+                <button @click="confirmClearData" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition">
+                    Clear All Data
+                </button>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div x-show="notification.show" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform -translate-y-2"
+             x-transition:enter-end="opacity-100 transform translate-y-0"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform translate-y-0"
+             x-transition:leave-end="opacity-0 transform -translate-y-2"
+             class="fixed top-4 right-4 p-4 rounded-md shadow-lg max-w-sm"
+             :class="notification.type === 'success' ? 'bg-green-100 text-green-800 border-l-4 border-green-500' : 'bg-red-100 text-red-800 border-l-4 border-red-500'">
+            <div class="flex items-center">
+                <div class="flex-shrink-0" x-show="notification.type === 'success'">
+                    <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="flex-shrink-0" x-show="notification.type === 'error'">
+                    <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p x-text="notification.message"></p>
+                </div>
+                <div class="ml-4">
+                    <button @click="notification.show = false" class="text-gray-500 hover:text-gray-700">
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function studentManagement() {
+            return {
+                courses: [],
+                selectedCourse: null,
+                newCourse: {
+                    id: '',
+                    name: '',
+                    students: []
+                },
+                newStudent: {
+                    id: '',
+                    name: '',
+                    email: '',
+                    grade: ''
+                },
+                editingStudentIndex: -1,
+                editingStudent: {},
+                notification: {
+                    show: false,
+                    message: '',
+                    type: 'success',
+                    timeout: null
+                },
+
+                init() {
+                    // Load data from localStorage if available
+                    const savedData = localStorage.getItem('studentManagementData');
+                    if (savedData) {
+                        try {
+                            this.courses = JSON.parse(savedData);
+                            this.showNotification('Data loaded successfully', 'success');
+                        } catch (e) {
+                            this.showNotification('Failed to load saved data', 'error');
+                        }
+                    } else {
+                        // Load sample data for demonstration
+                        this.loadSampleData();
+                    }
+                },
+
+                loadSampleData() {
+                    this.courses = [
+                        {
+                            id: 'CS101',
+                            name: 'Introduction to Computer Science',
+                            students: [
+                                { id: 'S1001', name: 'John Doe', email: 'john.doe@example.com', grade: 'A' },
+                                { id: 'S1002', name: 'Jane Smith', email: 'jane.smith@example.com', grade: 'B+' }
+                            ]
+                        },
+                        {
+                            id: 'MATH201',
+                            name: 'Advanced Calculus',
+                            students: [
+                                { id: 'S1003', name: 'Robert Johnson', email: 'robert.j@example.com', grade: 'B' },
+                                { id: 'S1001', name: 'John Doe', email: 'john.doe@example.com', grade: 'C+' }
+                            ]
+                        }
+                    ];
+                    this.saveToLocalStorage();
+                },
+
+                selectCourse(course) {
+                    this.selectedCourse = course;
+                    this.cancelStudentEdit();
+                },
+
+                addCourse() {
+                    // Check if the course ID already exists
+                    if (this.courses.some(c => c.id === this.newCourse.id)) {
+                        this.showNotification(`Course ID ${this.newCourse.id} already exists`, 'error');
+                        return;
+                    }
+
+                    this.courses.push({
+                        id: this.newCourse.id,
+                        name: this.newCourse.name,
+                        students: []
+                    });
+
+                    this.newCourse = { id: '', name: '', students: [] };
+                    this.saveToLocalStorage();
+                    this.showNotification('Course added successfully', 'success');
+                },
+
+                deleteCourse(courseId) {
+                    if (confirm(`Are you sure you want to delete the course ${courseId}?`)) {
+                        this.courses = this.courses.filter(c => c.id !== courseId);
+                        
+                        if (this.selectedCourse && this.selectedCourse.id === courseId) {
+                            this.selectedCourse = null;
+                        }
+                        
+                        this.saveToLocalStorage();
+                        this.showNotification('Course deleted successfully', 'success');
+                    }
+                },
+
+                addStudent() {
+                    // Check if student ID already exists in this course
+                    if (this.selectedCourse.students.some(s => s.id === this.newStudent.id)) {
+                        this.showNotification(`Student ID ${this.newStudent.id} already exists in this course`, 'error');
+                        return;
+                    }
+
+                    this.selectedCourse.students.push({
+                        id: this.newStudent.id,
+                        name: this.newStudent.name,
+                        email: this.newStudent.email,
+                        grade: this.newStudent.grade
+                    });
+
+                    this.newStudent = { id: '', name: '', email: '', grade: '' };
+                    this.saveToLocalStorage();
+                    this.showNotification('Student added successfully', 'success');
+                },
+
+                removeStudent(studentId) {
+                    if (confirm(`Are you sure you want to remove this student from the course?`)) {
+                        this.selectedCourse.students = this.selectedCourse.students.filter(s => s.id !== studentId);
+                        this.saveToLocalStorage();
+                        this.showNotification('Student removed from course', 'success');
+                    }
+                },
+
+                editStudent(index) {
+                    this.editingStudentIndex = index;
+                    this.editingStudent = { ...this.selectedCourse.students[index] };
+                },
+
+                saveStudentEdit() {
+                    this.selectedCourse.students[this.editingStudentIndex] = { ...this.editingStudent };
+                    this.cancelStudentEdit();
+                    this.saveToLocalStorage();
+                    this.showNotification('Student information updated', 'success');
+                },
+
+                cancelStudentEdit() {
+                    this.editingStudentIndex = -1;
+                    this.editingStudent = {};
+                },
+
+                saveToLocalStorage() {
+                    localStorage.setItem('studentManagementData', JSON.stringify(this.courses));
+                },
+
+                exportData() {
+                    const dataStr = JSON.stringify(this.courses, null, 2);
+                    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                    
+                    const exportFileDefaultName = 'student-management-data.json';
+                    
+                    const linkElement = document.createElement('a');
+                    linkElement.setAttribute('href', dataUri);
+                    linkElement.setAttribute('download', exportFileDefaultName);
+                    linkElement.click();
+                    
+                    this.showNotification('Data exported successfully', 'success');
+                },
+
+                importData(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            this.courses = data;
+                            this.selectedCourse = null;
+                            this.saveToLocalStorage();
+                            this.showNotification('Data imported successfully', 'success');
+                        } catch (error) {
+                            this.showNotification('Failed to import data: Invalid format', 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                    
+                    // Reset the file input
+                    event.target.value = '';
+                },
+
+                confirmClearData() {
+                    if (confirm('Are you sure you want to clear all data? This action cannot be undone.')) {
+                        this.courses = [];
+                        this.selectedCourse = null;
+                        localStorage.removeItem('studentManagementData');
+                        this.showNotification('All data has been cleared', 'success');
+                    }
+                },
+
+                showNotification(message, type = 'success') {
+                    // Clear any existing timeout
+                    if (this.notification.timeout) {
+                        clearTimeout(this.notification.timeout);
+                    }
+                    
+                    // Set notification
+                    this.notification.show = true;
+                    this.notification.message = message;
+                    this.notification.type = type;
+                    
+                    // Auto hide after 3 seconds
+                    this.notification.timeout = setTimeout(() => {
+                        this.notification.show = false;
+                    }, 3000);
+                }
+            };
+        }
+    </script>
+</body>
+</html>

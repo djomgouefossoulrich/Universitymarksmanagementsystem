@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance Portal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <nav class="bg-blue-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-bold">Student Attendance Portal</h1>
+            <div class="flex items-center space-x-4">
+                <span class="font-medium" id="student-name">John Doe</span>
+                <span class="bg-blue-600 px-3 py-1 rounded-full text-sm">ID: 12345</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-6">
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-gray-700">Attendance Summary</h2>
+                <div class="relative">
+                    <select id="course-selector" class="block appearance-none bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500">
+                        <option value="all">All Courses</option>
+                        <option value="CS101">CS101: Introduction to Programming</option>
+                        <option value="MATH202">MATH202: Calculus II</option>
+                        <option value="ENG105">ENG105: Academic Writing</option>
+                        <option value="PHYS201">PHYS201: Physics for Engineers</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap -mx-2">
+                <div class="w-full md:w-1/4 px-2 mb-4">
+                    <div class="bg-green-100 border-l-4 border-green-500 rounded-r-lg p-4">
+                        <p class="text-green-700 font-semibold">Present</p>
+                        <p class="text-2xl font-bold" id="present-count">0</p>
+                        <p class="text-green-600 text-sm" id="present-percentage">0%</p>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/4 px-2 mb-4">
+                    <div class="bg-red-100 border-l-4 border-red-500 rounded-r-lg p-4">
+                        <p class="text-red-700 font-semibold">Absent</p>
+                        <p class="text-2xl font-bold" id="absent-count">0</p>
+                        <p class="text-red-600 text-sm" id="absent-percentage">0%</p>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/4 px-2 mb-4">
+                    <div class="bg-yellow-100 border-l-4 border-yellow-500 rounded-r-lg p-4">
+                        <p class="text-yellow-700 font-semibold">Late</p>
+                        <p class="text-2xl font-bold" id="late-count">0</p>
+                        <p class="text-yellow-600 text-sm" id="late-percentage">0%</p>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/4 px-2 mb-4">
+                    <div class="bg-blue-100 border-l-4 border-blue-500 rounded-r-lg p-4">
+                        <p class="text-blue-700 font-semibold">Total Classes</p>
+                        <p class="text-2xl font-bold" id="total-classes">0</p>
+                        <p class="text-blue-600 text-sm">Attendance Rate: <span id="attendance-rate">0%</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <canvas id="attendance-chart" height="100"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-gray-700">Attendance Records</h2>
+                <div class="flex space-x-2">
+                    <button id="show-all" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition">All</button>
+                    <button id="show-present" class="bg-gray-200 hover:bg-green-600 hover:text-white text-gray-700 px-3 py-1 rounded text-sm transition">Present</button>
+                    <button id="show-absent" class="bg-gray-200 hover:bg-red-600 hover:text-white text-gray-700 px-3 py-1 rounded text-sm transition">Absent</button>
+                    <button id="show-late" class="bg-gray-200 hover:bg-yellow-600 hover:text-white text-gray-700 px-3 py-1 rounded text-sm transition">Late</button>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6 text-left">Date</th>
+                            <th class="py-3 px-6 text-left">Course</th>
+                            <th class="py-3 px-6 text-left">Time</th>
+                            <th class="py-3 px-6 text-left">Status</th>
+                            <th class="py-3 px-6 text-left">Instructor</th>
+                            <th class="py-3 px-6 text-left">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-600 text-sm" id="attendance-table-body">
+                        <!-- Table data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-4 flex justify-between items-center">
+                <div class="text-sm text-gray-600">
+                    Showing <span id="visible-records">0</span> of <span id="total-records">0</span> records
+                </div>
+                <div class="flex space-x-2">
+                    <button id="prev-page" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm disabled:opacity-50">Previous</button>
+                    <span id="page-indicator" class="px-3 py-1">Page 1 of 1</span>
+                    <button id="next-page" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm disabled:opacity-50">Next</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Sample data - In a real application, this would come from a backend API
+        const attendanceData = [
+            { date: '2025-04-22', course: 'CS101', courseName: 'Introduction to Programming', time: '09:00 AM', status: 'present', instructor: 'Dr. Smith', notes: '' },
+            { date: '2025-04-21', course: 'MATH202', courseName: 'Calculus II', time: '11:00 AM', status: 'present', instructor: 'Dr. Johnson', notes: '' },
+            { date: '2025-04-20', course: 'ENG105', courseName: 'Academic Writing', time: '02:00 PM', status: 'absent', instructor: 'Prof. Williams', notes: 'Medical absence' },
+            { date: '2025-04-19', course: 'PHYS201', courseName: 'Physics for Engineers', time: '10:00 AM', status: 'late', instructor: 'Dr. Brown', notes: 'Late by 15 minutes' },
+            { date: '2025-04-18', course: 'CS101', courseName: 'Introduction to Programming', time: '09:00 AM', status: 'present', instructor: 'Dr. Smith', notes: '' },
+            { date: '2025-04-17', course: 'MATH202', courseName: 'Calculus II', time: '11:00 AM', status: 'absent', instructor: 'Dr. Johnson', notes: 'No notification' },
+            { date: '2025-04-16', course: 'ENG105', courseName: 'Academic Writing', time: '02:00 PM', status: 'present', instructor: 'Prof. Williams', notes: '' },
+            { date: '2025-04-15', course: 'PHYS201', courseName: 'Physics for Engineers', time: '10:00 AM', status: 'present', instructor: 'Dr. Brown', notes: '' },
+            { date: '2025-04-14', course: 'CS101', courseName: 'Introduction to Programming', time: '09:00 AM', status: 'late', instructor: 'Dr. Smith', notes: 'Late by 5 minutes' },
+            { date: '2025-04-13', course: 'MATH202', courseName: 'Calculus II', time: '11:00 AM', status: 'present', instructor: 'Dr. Johnson', notes: '' },
+            { date: '2025-04-12', course: 'ENG105', courseName: 'Academic Writing', time: '02:00 PM', status: 'present', instructor: 'Prof. Williams', notes: '' },
+            { date: '2025-04-11', course: 'PHYS201', courseName: 'Physics for Engineers', time: '10:00 AM', status: 'absent', instructor: 'Dr. Brown', notes: 'Family emergency' },
+            { date: '2025-04-10', course: 'CS101', courseName: 'Introduction to Programming', time: '09:00 AM', status: 'present', instructor: 'Dr. Smith', notes: '' },
+            { date: '2025-04-09', course: 'MATH202', courseName: 'Calculus II', time: '11:00 AM', status: 'present', instructor: 'Dr. Johnson', notes: '' },
+            { date: '2025-04-08', course: 'ENG105', courseName: 'Academic Writing', time: '02:00 PM', status: 'late', instructor: 'Prof. Williams', notes: 'Late by 10 minutes' }
+        ];
+
+        // State variables
+        let currentCourse = 'all';
+        let currentStatus = 'all';
+        let currentPage = 1;
+        const recordsPerPage = 5;
+        let filteredData = [...attendanceData];
+        let attendanceChart = null;
+
+        // Elements
+        const courseSelector = document.getElementById('course-selector');
+        const attendanceTableBody = document.getElementById('attendance-table-body');
+        const presentCount = document.getElementById('present-count');
+        const absentCount = document.getElementById('absent-count');
+        const lateCount = document.getElementById('late-count');
+        const totalClasses = document.getElementById('total-classes');
+        const presentPercentage = document.getElementById('present-percentage');
+        const absentPercentage = document.getElementById('absent-percentage');
+        const latePercentage = document.getElementById('late-percentage');
+        const attendanceRate = document.getElementById('attendance-rate');
+        const visibleRecords = document.getElementById('visible-records');
+        const totalRecords = document.getElementById('total-records');
+        const pageIndicator = document.getElementById('page-indicator');
+        const prevPageBtn = document.getElementById('prev-page');
+        const nextPageBtn = document.getElementById('next-page');
+        const showAllBtn = document.getElementById('show-all');
+        const showPresentBtn = document.getElementById('show-present');
+        const showAbsentBtn = document.getElementById('show-absent');
+        const showLateBtn = document.getElementById('show-late');
+
+        // Initialize the application
+        function init() {
+            courseSelector.addEventListener('change', handleCourseChange);
+            showAllBtn.addEventListener('click', () => handleStatusFilter('all'));
+            showPresentBtn.addEventListener('click', () => handleStatusFilter('present'));
+            showAbsentBtn.addEventListener('click', () => handleStatusFilter('absent'));
+            showLateBtn.addEventListener('click', () => handleStatusFilter('late'));
+            prevPageBtn.addEventListener('click', handlePrevPage);
+            nextPageBtn.addEventListener('click', handleNextPage);
+
+            updateFilteredData();
+            renderAttendanceTable();
+            updateSummary();
+            initChart();
+        }
+
+        // Filter data based on selected course and status
+        function updateFilteredData() {
+            filteredData = attendanceData.filter(record => {
+                const courseMatch = currentCourse === 'all' || record.course === currentCourse;
+                const statusMatch = currentStatus === 'all' || record.status === currentStatus;
+                return courseMatch && statusMatch;
+            });
+
+            totalRecords.textContent = filteredData.length;
+            updatePagination();
+        }
+
+        // Update pagination controls
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+            currentPage = Math.min(currentPage, totalPages || 1);
+            
+            pageIndicator.textContent = `Page ${currentPage} of ${totalPages || 1}`;
+            prevPageBtn.disabled = currentPage <= 1;
+            nextPageBtn.disabled = currentPage >= totalPages;
+        }
+
+        // Render the attendance table with paginated data
+        function renderAttendanceTable() {
+            attendanceTableBody.innerHTML = '';
+            
+            const startIndex = (currentPage - 1) * recordsPerPage;
+            const endIndex = Math.min(startIndex + recordsPerPage, filteredData.length);
+            const paginatedData = filteredData.slice(startIndex, endIndex);
+            
+            visibleRecords.textContent = paginatedData.length;
+            
+            if (paginatedData.length === 0) {
+                const noDataRow = document.createElement('tr');
+                noDataRow.innerHTML = `
+                    <td colspan="6" class="py-3 px-6 text-center">
+                        No attendance records found for the selected filters.
+                    </td>
+                `;
+                attendanceTableBody.appendChild(noDataRow);
+                return;
+            }
+            
+            paginatedData.forEach(record => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 hover:bg-gray-100';
+                
+                const statusClass = 
+                    record.status === 'present' ? 'bg-green-100 text-green-800' :
+                    record.status === 'absent' ? 'bg-red-100 text-red-800' :
+                    'bg-yellow-100 text-yellow-800';
+                
+                row.innerHTML = `
+                    <td class="py-3 px-6 text-left">${formatDate(record.date)}</td>
+                    <td class="py-3 px-6 text-left">${record.course}: ${record.courseName}</td>
+                    <td class="py-3 px-6 text-left">${record.time}</td>
+                    <td class="py-3 px-6 text-left">
+                        <span class="py-1 px-3 rounded-full text-xs ${statusClass} capitalize">
+                            ${record.status}
+                        </span>
+                    </td>
+                    <td class="py-3 px-6 text-left">${record.instructor}</td>
+                    <td class="py-3 px-6 text-left">${record.notes || '-'}</td>
+                `;
+                
+                attendanceTableBody.appendChild(row);
+            });
+        }
+
+        // Update the summary statistics
+        function updateSummary() {
+            // Filter records for the selected course
+            const courseRecords = currentCourse === 'all' ? 
+                attendanceData : 
+                attendanceData.filter(record => record.course === currentCourse);
+            
+            const present = courseRecords.filter(record => record.status === 'present').length;
+            const absent = courseRecords.filter(record => record.status === 'absent').length;
+            const late = courseRecords.filter(record => record.status === 'late').length;
+            const total = courseRecords.length;
+            
+            presentCount.textContent = present;
+            absentCount.textContent = absent;
+            lateCount.textContent = late;
+            totalClasses.textContent = total;
+            
+            const presentPerc = total > 0 ? Math.round((present / total) * 100) : 0;
+            const absentPerc = total > 0 ? Math.round((absent / total) * 100) : 0;
+            const latePerc = total > 0 ? Math.round((late / total) * 100) : 0;
+            
+            presentPercentage.textContent = `${presentPerc}%`;
+            absentPercentage.textContent = `${absentPerc}%`;
+            latePercentage.textContent = `${latePerc}%`;
+            attendanceRate.textContent = `${presentPerc}%`;
+            
+            updateChart(present, absent, late);
+        }
+
+        // Initialize the attendance chart
+        function initChart() {
+            const ctx = document.getElementById('attendance-chart').getContext('2d');
+            attendanceChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Present', 'Absent', 'Late'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: [
+                            'rgba(72, 187, 120, 0.7)',
+                            'rgba(245, 101, 101, 0.7)',
+                            'rgba(237, 137, 54, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(72, 187, 120)',
+                            'rgb(245, 101, 101)',
+                            'rgb(237, 137, 54)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update the chart with new data
+        function updateChart(present, absent, late) {
+            if (attendanceChart) {
+                attendanceChart.data.datasets[0].data = [present, absent, late];
+                attendanceChart.update();
+            }
+        }
+
+        // Event handlers
+        function handleCourseChange(e) {
+            currentCourse = e.target.value;
+            currentPage = 1;
+            updateFilteredData();
+            renderAttendanceTable();
+            updateSummary();
+            
+            // Update status filter buttons
+            updateStatusButtons('all');
+        }
+
+        function handleStatusFilter(status) {
+            currentStatus = status;
+            currentPage = 1;
+            updateFilteredData();
+            renderAttendanceTable();
+            
+            // Update status filter buttons
+            updateStatusButtons(status);
+        }
+
+        function updateStatusButtons(activeStatus) {
+            // Reset all buttons to default state
+            showAllBtn.className = 'bg-gray-200 hover:bg-blue-600 hover:text-white text-gray-700 px-3 py-1 rounded text-sm transition';
+            showPresentBtn.className = 'bg-gray-200 hover:bg-green-600 hover:text-white text-gray-700 px-3 py-1 rounded text-sm transition';
+            showAbsentBtn.className = 'bg-gray-200 hover:bg-red-600 hover:text-white text-gray-700 px-3 py-1 rounded text-sm transition';
+            showLateBtn.className = 'bg-gray-200 hover:bg-yellow-600 hover:text-white text-gray-700 px-3 py-1 rounded text-sm transition';
+            
+            // Set active button style
+            if (activeStatus === 'all') {
+                showAllBtn.className = 'bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition';
+            } else if (activeStatus === 'present') {
+                showPresentBtn.className = 'bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition';
+            } else if (activeStatus === 'absent') {
+                showAbsentBtn.className = 'bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition';
+            } else if (activeStatus === 'late') {
+                showLateBtn.className = 'bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm transition';
+            }
+        }
+
+        function handlePrevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderAttendanceTable();
+                updatePagination();
+            }
+        }
+
+        function handleNextPage() {
+            const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderAttendanceTable();
+                updatePagination();
+            }
+        }
+
+        // Helper function to format date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        // Start the application
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - University Marks Management System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* .dropdown-content {
+            display: none;
+            transition: all 0.3s ease;
+        }
+        
+        .dropdown-content.active {
+            display: block;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .chart-container {
+            height: 300px;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        } */
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div id="sidebar" class="bg-indigo-900 text-white w-64 flex flex-col transition-all duration-300 ease-in-out transform translate-x-0">
+            <div class="p-6 border-b border-indigo-800">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-bold">UMMS Admin</h2>
+                    <button id="sidebarToggle" class="block lg:hidden focus:outline-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-4 border-b border-indigo-800">
+                <div class="flex items-center">
+                    <img src="images/pa.jpg" alt="Admin Profile" class="w-10 h-10 rounded-full">
+                    <div class="ml-3">
+                        <p class="font-medium">Engr.FOSSO</p>
+                        <p class="text-sm text-indigo-300">System Administrator</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-1 overflow-y-auto custom-scrollbar">
+                <p class="px-4 pt-4 pb-2 text-xs text-indigo-400 uppercase font-semibold">Main</p>
+                <ul>
+                    <li>
+                        <button onclick="showTab('dashboard')" class="sidebar-item flex items-center w-full py-3 px-4 text-indigo-100 hover:text-white hover:bg-indigo-800 rounded-lg transition-colors duration-200">
+                            <i class="fas fa-chart-pie w-5 text-center mr-2"></i>
+                            <span>Dashboard</span>
+                        </button>
+                    </li>
+                    <li class="mb-2">
+                        <button class="nav-dropdown-btn flex items-center justify-between w-full px-3 py-2 text-left text-white rounded-md hover:bg-blue-700 transition-colors" data-section="user">
+                            <div class="flex items-center space-x-3">
+                                <i data-lucide="users"></i>
+                                <span>User Management</span>
+                            </div>
+                            <i data-lucide="chevron-down"></i>
+                        </button>
+                        <ul class="mt-1 pl-9 space-y-1 hidden" id="userDropdown">  <li><a href="user management for admin.html" class="block py-2 px-3 text-sm text-blue-100 hover:text-white hover:bg-blue-700 rounded-md transition-colors">User Creation Form</a></li>
+                            <li><a href="#/users/list" class="block py-2 px-3 text-sm text-blue-100 hover:text-white hover:bg-blue-700 rounded-md transition-colors">User Listing & Search</a></li>
+                            <li><a href="#/users/edit" class="block py-2 px-3 text-sm text-blue-100 hover:text-white hover:bg-blue-700 rounded-md transition-colors">User Profile Editing</a></li>
+                            <li><a href="" class="block py-2 px-3 text-sm text-blue-100 hover:text-white hover:bg-blue-700 rounded-md transition-colors">Role Assignment</a></li>
+                            <li><a href="Bulk attendance entry.html" class="block py-2 px-3 text-sm text-blue-100 hover:text-white hover:bg-blue-700 rounded-md transition-colors">Bulk User Import/Export</a></li>
+                        </ul>
+                    </li>
+                    <li class="mb-2">
+                        <button class="nav-dropdown-btn flex items-center justify-between w-full px-3 py-2 text-left text-white rounded-md hover:bg-blue-700 transition-colors" data-section="department">
+                            <div class="flex items-center space-x-3">
+                                <i data-lucide="building"></i>
+                                <span>Department Management</span>
+                            </div>
+                            <i data-lucide="chevron-down"></i>
+                        </button>
+                        <ul class="mt-1 pl-9 space-y-1 hidden" id="departmentDropdown">  <li><a href="department management for admin.html" class="block py-2 px-3 text-sm text-blue-100 hover:text-white hover:bg-blue-700 rounded-md transition-colors">Department Creation/Editing</a></li>
+                            <li><a href="#/departments/faculty" class="block py-2 px-3 text-sm text-blue-100 hover:text-white hover:bg-blue-700 rounded-md transition-colors">Faculty Assignment</a></li>
+                            <li><a href="#/departments/stats" class="block py-2 px-3 text-sm text-blue-100 hover:text-white hover:bg-blue-700 rounded-md transition-colors">Department Statistics</a></li>
+                        </ul>
+                    </li>
+                     <!-- System Configuration -->
+                     <li class="mb-2">
+                        <button class="nav-dropdown-btn flex items-center justify-between w-full px-3 py-2 text-left text-white rounded-md hover:bg-blue-700 transition-colors" data-section="system">
+                            <div class="flex items-center space-x-3">
+                                <i data-lucide="settings"></i>
+                                <span>System Configuration</span>
+                            </div>
+                            <i data-lucide="chevron-down"></i>
+                        </button>
+                        <ul class="mt-1 pl-9 space-y-1 hidden" id="systemDropdown">  
+                            <li><a href="#/system/academic-year" class="block py-2 px-3 text-sm text-blue-100 hover:text-white hover:bg-blue-700 rounded-md transition-colors">Academic Year Settings</a></li>
+                            <li><a href="" class="block py-2 px-3 text-sm text-blue-100 hover:text-white hover:bg-blue-700 rounded-md transition-colors">Grading System Configuration</a></li>
+                            <li><a href="#/system/notifications" class="block py-2 px-3 text-sm text-blue-100 hover:text-white hover:bg-blue-700 rounded-md transition-colors">Notification Settings</a></li>
+                            <li><a href="#/system/backup" class="block py-2 px-3 text-sm text-blue-100 hover:text-white hover:bg-blue-700 rounded-md transition-colors">System Backup and Restore</a></li>
+                        </ul>
+                   
+                       <!-- Reports Generation -->
+                       <li class="mb-2">
+                        <button class="nav-dropdown-btn flex items-center justify-between w-full px-3 py-2 text-left text-white rounded-md hover:bg-blue-700 transition-colors" data-section="reports">
+                            <div class="flex items-center space-x-3">
+                                <i data-lucide="bar-chart-3"></i>
+                                <span>Reports Generation</span>
+                            </div>
+                            <i data-lucide="chevron-down"></i>
+                        </button>
+                        <ul class="mt-1 pl-9 space-y-1 hidden" id="reportsDropdown">  
+                            <li><a href="report generation.html" class="block py-2 px-3 text-sm text-blue-100 hover:text-white hover:bg-blue-700 rounded-md transition-colors">Custom Report Builder</a></li>
+                            <li><a href="#/reports/templates" class="block py-2 px-3 text-sm text-blue-100 hover:text-white hover:bg-blue-700 rounded-md transition-colors">Predefined Report Templates</a></li>
+                            <li><a href="export option.html" class="block py-2 px-3 text-sm text-blue-100 hover:text-white hover:bg-blue-700 rounded-md transition-colors">Export Options</a></li>
+                        </ul>
+                    </li>
+
+                <!-- Quick Links Section
+                <div class="mt-8 border-t border-blue-700 pt-4">
+                    <h4 class="px-3 text-sm font-medium text-blue-300 uppercase tracking-wider mb-2">Quick Links</h4>
+                    <div class="px-3">
+                        <div class="flex flex-wrap gap-2" id="quickLinks">
+                             Quick links will be added here -->
+                        <!-- </div> -->
+                       
+
+                    <!-- <li>
+                        <button onclick="showTab('academic-terms')" class="sidebar-item flex items-center w-full py-3 px-4 text-indigo-100 hover:text-white hover:bg-indigo-800 rounded-lg transition-colors duration-200">
+                            <i class="fas fa-calendar-alt w-5 text-center mr-2"></i>
+                            <span>Academic Terms</span>
+                        </button>
+                    </li> -->
+                <!-- </ul>
+                <p class="px-4 pt-6 pb-2 text-xs text-indigo-400 uppercase font-semibold">System</p>
+                <ul>
+                    <li>
+                        <a href="#" class="sidebar-item flex items-center w-full py-3 px-4 text-indigo-100 hover:text-white hover:bg-indigo-800 rounded-lg transition-colors duration-200">
+                            <i class="fas fa-history w-5 text-center mr-2"></i>
+                            <span>Audit Logs</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-item flex items-center w-full py-3 px-4 text-indigo-100 hover:text-white hover:bg-indigo-800 rounded-lg transition-colors duration-200">
+                            <i class="fas fa-database w-5 text-center mr-2"></i>
+                            <span>Backup & Restore</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-item flex items-center w-full py-3 px-4 text-indigo-100 hover:text-white hover:bg-indigo-800 rounded-lg transition-colors duration-200">
+                            <i class="fas fa-question-circle w-5 text-center mr-2"></i>
+                            <span>Help & Support</span>
+                        </a>
+                    </li>
+                </ul> -->
+            </nav>
+            <div class="p-4 border-t border-indigo-800">
+                <a href="#" class="flex items-center justify-center py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200">
+                    <i class="fas fa-sign-out-alt mr-2"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm">
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex items-center">
+                        <button id="mobile-sidebar-toggle" class="text-gray-600 focus:outline-none lg:hidden mr-4">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h1 class="text-xl font-semibold text-gray-800" id="page-title">Dashboard</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative hidden md:block">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </span>
+                            <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-600">
+                        </div>
+                        <button class="relative p-2 text-gray-600 hover:text-indigo-600 focus:outline-none">
+                            <i class="fas fa-bell"></i>
+                            <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                        </button>
+                        <button class="relative p-2 text-gray-600 hover:text-indigo-600 focus:outline-none">
+                            <i class="fas fa-envelope"></i>
+                            <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                        </button>
+                        <div class="relative">
+                            <button class="flex items-center focus:outline-none" id="user-menu-button">
+                                <img src="images/pa.jpg" alt="User Profile" class="h-8 w-8 rounded-full">
+                                <span class="ml-2 text-gray-700 hidden md:inline">Engr.FOSSO</span>
+                                <i class="fas fa-chevron-down ml-1 text-gray-400"></i>
+                            </button>
+                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden" id="user-menu-dropdown">
+                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100">
+                                    <i class="fas fa-user mr-2"></i> Profile
+                                </a>
+                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100">
+                                    <i class="fas fa-cog mr-2"></i> Settings
+                                </a>
+                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-indigo-100">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main content -->
+            <main class="flex-1 overflow-y-auto p-4 bg-gray-100 custom-scrollbar">
+                <!-- Dashboard Tab -->
+                <div id="dashboard" class="tab-content active">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white rounded-lg shadow-sm p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-indigo-100 text-indigo-600">
+                                    <i class="fas fa-users text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-gray-500">Total Users</p>
+                                    <h3 class="text-2xl font-bold">3,521</h3>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center text-sm">
+                                <span class="text-green-500 flex items-center">
+                                    <i class="fas fa-arrow-up mr-1"></i> 12%
+                                </span>
+                                <span class="text-gray-500 ml-2">Since last month</span>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-sm p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-green-100 text-green-600">
+                                    <i class="fas fa-user-graduate text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-gray-500">Students</p>
+                                    <h3 class="text-2xl font-bold">2,845</h3>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center text-sm">
+                                <span class="text-green-500 flex items-center">
+                                    <i class="fas fa-arrow-up mr-1"></i> 8%
+                                </span>
+                                <span class="text-gray-500 ml-2">Since last month</span>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-sm p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                                    <i class="fas fa-chalkboard-teacher text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-gray-500">Faculty</p>
+                                    <h3 class="text-2xl font-bold">426</h3>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center text-sm">
+                                <span class="text-green-500 flex items-center">
+                                    <i class="fas fa-arrow-up mr-1"></i> 3%
+                                </span>
+                                <span class="text-gray-500 ml-2">Since last month</span>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-sm p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                                    <i class="fas fa-building text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-gray-500">Departments</p>
+                                    <h3 class="text-2xl font-bold">12</h3>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center text-sm">
+                                <span class="text-gray-500 flex items-center">
+                                    <i class="fas fa-equals mr-1"></i> 0%
+                                </span>
+                                <span class="text-gray-500 ml-2">Since last month</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-white rounded-lg shadow-sm">
+                            <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                                <h2 class="text-lg font-semibold">User Statistics</h2>
+                                <div class="flex items-center">
+                                    <select class="text-sm border rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-600">
+                                        <option>This Month</option>
+                                        <option>Last Month</option>
+                                        <option>Last 3 Months</option>
+                                        <option>This Year</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <div class="chart-container">
+                                    <canvas id="userStatsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-sm">
+                            <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                                <h2 class="text-lg font-semibold">Department Distribution</h2>
+                                <div class="flex items-center">
+                                    <select class="text-sm border rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-600">
+                                        <option>All Users</option>
+                                        <option>Students Only</option>
+                                        <option>Faculty Only</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <div class="chart-container">
+                                    <canvas id="deptDistributionChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-lg shadow-sm lg:col-span-2">
+                            <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                                <h2 class="text-lg font-semibold">Recent Activities</h2>
+                                <a href="#" class="text-indigo-600 hover:text-indigo-800 text-sm">View All</a>
+                            </div>
+                            <div class="p-4">
+                                <ul class="divide-y divide-gray-200">
+                                    <li class="py-3">
+                                        <div class="flex">
+                                            <div class="flex-shrink-0">
+                                                <span class="inline-block h-10 w-10 rounded-full bg-indigo-500 text-white text-center leading-10">
+                                                    <i class="fas fa-user-plus"></i>
+                                                </span>
+                                            </div>
+                                            <div class="ml-4">
+                                                <p class="font-medium">New user registered</p>
+                                                <p class="text-sm text-gray-500">Emily Johnson (Student) - Computer Science</p>
+                                                <p class="text-xs text-gray-400">Today, 10:30 AM</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="py-3">
+                                        <div class="flex">
+                                            <div class="flex-shrink-0">
+                                                <span class="inline-block h-10 w-10 rounded-full bg-green-500 text-white text-center leading-10">
+                                                    <i class="fas fa-cog"></i>
+                                                </span>
+                                            </div>
+                                            <div class="ml-4">
+                                                <p class="font-medium">System settings updated</p>
+                                                <p class="text-sm text-gray-500">Grade calculation algorithm modified</p>
+                                                <p class="text-xs text-gray-400">Today, 9:15 AM</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="py-3">
+                                        <div class="flex">
+                                            <div class="flex-shrink-0">
+                                                <span class="inline-block h-10 w-10 rounded-full bg-blue-500 text-white text-center leading-10">
+                                                    <i class="fas fa-calendar-alt"></i>
+                                                </span>
+                                            </div>
+                                            <div class="ml-4">
+                                                <p class="font-medium">New academic term created</p>
+                                                <p class="text-sm text-gray-500">Fall Semester 2025 added to the system</p>
+                                                <p class="text-xs text-gray-400">Yesterday, 2:45 PM</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="py-3">
+                                        <div class="flex">
+                                            <div class="flex-shrink-0">
+                                                <span class="inline-block h-10 w-10 rounded-full bg-red-500 text-white text-center leading-10">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                </span>
+                                            </div>
+                                            <div class="ml-4">
+                                                <p class="font-medium">System alert</p>
+                                                <p class="text-sm text-gray-500">Database backup failed</p>
+                                                <p class="text-xs text-gray-400">Yesterday, 11:30 AM</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-sm">
+                            <div class="p-4 border-b border-gray-200">
+                                <h2 class="text-lg font-semibold">Quick Actions</h2>
+                            </div>
+                            <div class="p-4">
+                                <div class="space-y-3">
+                                    <a href="#" class="block py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-center transition-colors">
+                                        <i class="fas fa-user-plus mr-2"></i> Add New User
+                                    </a>
+                                    <a href="#" class="block py-2 px-4 bg-green-600 hover:bg-green-700 text-white rounded-lg text-center transition-colors">
+                                        <i class="fas fa-building mr-2"></i> Add Department
+                                    </a>
+                                    <a href="#" class="block py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-center transition-colors">
+                                        <i class="fas fa-calendar-plus mr-2"></i> Create Term
+                                    </a>
+                                    <a href="#" class="block py-2 px-4 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-center transition-colors">
+                                        <i class="fas fa-file-export mr-2"></i> Generate Report
+                                    </a>
+                                    <!-- <a href="#" class="block py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-center transition-colors">
+                                        <i class="fas fa-database mr-2"></i> Backup System
+                                    </a> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Management Tab -->
+                <div id="user-management" class="tab-content">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold mb-4 md:mb-0">User Management</h2>
+                        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full md:w-auto">
+                            <div class="relative flex-grow">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                                    <i class="fas fa-search text-gray-400"></i>
+                                </span>
+                                <input type="text" placeholder="Search users..." class="pl-10 pr-4 py-2 w-full rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-600">
+                            </div>
+                            <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center">
+                                <i class="fas fa-plus mr-2"></i> Add User
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm mb-6">
+                        <div class="p-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                            <div class="flex items-center mb-3 sm:mb-0">
+                                <h3 class="font-semibold">User List</h3>
+                                <span class="ml-2 px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full">3,521 users</span>
+                            </div>
+                            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                                <select class="border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600">
+                                    <option>All Roles</option>
+                                    <option>Admin</option>
+                                    <option>Faculty</option>
+                                    <option>Student</option>
+                                    <option>Exam Controller</option>
+                                    <option>HOD</option>
+                                    <option>Parent</option>
+                                </select>
+                                <select class="border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600">
+                                    <option>All Departments</option>
+                                    <option>Computer Science</option>
+                                    <option>Electrical Engineering</option>
+                                    <option>Mechanical Engineering</option>
+                                    <option>Civil Engineering</option>
+                                    <option>Business Administration</option>
+                                </select>
+                                <div class="flex space-x-2">
+                                    <button class="p-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+                                        <i class="fas fa-filter"></i>
+                                    </button>
+                                    <button class="p-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <class class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <input type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500">
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            User
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Role
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Department
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Status
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Created
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <div class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <input type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500">
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-10 w-10">
+                                                    <img src="/api/placeholder/40/40" alt="User" class="h-10 w-10 rounded-full">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">David Lee</div>
+                                                    <div class="text-sm text-gray-500">david.lee@example.com</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
+                                                HOD
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            Computer Science
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                Active
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            Jan 15, 2023
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <div class="flex justify-end space-x-2">
+                                                <button class="text-indigo-600 hover:text-indigo-900"><i class="fas fa-eye"></i></button>
+                                                <button class="text-blue-600 hover:text-blue-900"><i class="fas fa-edit"></i></button>
+                                                <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                          
+                                </div>
+                            </class>
+                        </div>
+                        <script>
+                            // Initialize Lucide icons
+                            lucide.createIcons();
+                        
+
+//  Sidebar Toggle
+const sidebar = document.getElementById('sidebar');
+const sidebarToggle = document.getElementById('sidebarToggle');
+
+console.log("sidebarToggle:", sidebarToggle);  
+
+sidebarToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('active');
+    const icon = sidebarToggle.querySelector('i');
+    if (sidebar.classList.contains('active')) {
+        icon.setAttribute('data-lucide', 'x');
+    } else {
+        icon.setAttribute('data-lucide', 'menu');
+    }
+    lucide.createIcons();
+});
+
+                          // Dropdown Navigation
+                          document.querySelectorAll('.nav-dropdown-btn').forEach(button => {
+    button.addEventListener('click', () => {
+        const section = button.getAttribute('data-section');
+        const dropdown = document.getElementById(`${section}Dropdown`);
+        const icon = button.querySelector('[data-lucide="chevron-down"]');
+
+        dropdown.classList.toggle('hidden');
+        if (dropdown.classList.contains('hidden')) {
+            icon.setAttribute('data-lucide', 'chevron-down');
+        } else {
+            icon.setAttribute('data-lucide', 'chevron-up');
+        }
+    });
+});
+                            // Profile Menu
+                            const profileMenu = document.getElementById('profileMenu');
+                            const profileDropdown = document.getElementById('profileDropdown');
+                            
+                            profileMenu.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                profileDropdown.classList.toggle('hidden');
+                                const icon = profileMenu.querySelector('[data-lucide="chevron-down"]');
+                                if (!profileDropdown.classList.contains('hidden')) {
+                                    icon.setAttribute('data-lucide', 'chevron-up');
+                                } else {
+                                    icon.setAttribute('datalucide', 'chevron-down');
+                                }
+                                lucide.createIcons();
+                            });
+                        
+                            // Close profile dropdown when clicking outside
+                            document.addEventListener('click', (e) => {
+                                if (!profileMenu.contains(e.target)) {
+                                    profileDropdown.classList.add('hidden');
+                                    const icon = profileMenu.querySelector('i[data-lucide]');
+                                    icon.setAttribute('data-lucide', 'chevron-down');
+                                    lucide.createIcons();
+                                }
+                            });
+                        </script>
+      </body>
+ </html>

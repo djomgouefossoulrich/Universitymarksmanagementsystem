@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Result Publication Controls - Exam Controller</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .publication-card {
+      transition: all 0.3s ease;
+    }
+    .publication-card:hover {
+      transform: translateY(-2px);
+    }
+    .toast {
+      transition: all 0.3s ease;
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 24px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #4F46E5;
+    }
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <header class="bg-white shadow">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-800">Result Publication Controls</h1>
+          <p class="text-gray-600">Manage and control result publication settings</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <button id="publishAllBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition">
+            <i class="fas fa-globe mr-2"></i>Publish All
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- Publication Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Published</p>
+            <p class="text-2xl font-bold text-gray-800" id="publishedCount">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Pending</p>
+            <p class="text-2xl font-bold text-gray-800" id="pendingCount">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+            <i class="fas fa-users"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Total Students</p>
+            <p class="text-2xl font-bold text-gray-800" id="totalStudents">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
+            <i class="fas fa-graduation-cap"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Departments</p>
+            <p class="text-2xl font-bold text-gray-800" id="departmentCount">0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls Section -->
+    <div class="bg-white rounded-lg shadow-md mb-8">
+      <div class="p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Global Settings</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-medium text-gray-700">Email Notifications</h3>
+                <p class="text-sm text-gray-500">Send email notifications to students</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="emailToggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-medium text-gray-700">SMS Alerts</h3>
+                <p class="text-sm text-gray-500">Send SMS alerts for result publication</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="smsToggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-medium text-gray-700">Student Portal</h3>
+                <p class="text-sm text-gray-500">Show results in student portal</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="portalToggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-medium text-gray-700">Public Access</h3>
+                <p class="text-sm text-gray-500">Allow public result viewing</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="publicToggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results List -->
+    <div class="bg-white rounded-lg shadow-md">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-lg font-semibold text-gray-800">Course Results</h2>
+          <div class="flex space-x-4">
+            <select id="departmentFilter" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200">
+              <option value="">All Departments</option>
+              <option value="CS">Computer Science</option>
+              <option value="EE">Electrical Engineering</option>
+              <option value="ME">Mechanical Engineering</option>
+            </select>
+            <select id="semesterFilter" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200">
+              <option value="">All Semesters</option>
+              <option value="1">1st Semester</option>
+              <option value="2">2nd Semester</option>
+              <option value="3">3rd Semester</option>
+              <option value="4">4th Semester</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Semester</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Students</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="resultsTableBody" class="bg-white divide-y divide-gray-200">
+              <!-- Table content will be dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Publication Modal -->
+  <div id="publishModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+      <div class="p-6">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">Confirm Publication</h3>
+        <p class="text-gray-600 mb-6">Are you sure you want to publish the selected results? This action will make the results visible to students.</p>
+        <div class="flex justify-end space-x-3">
+          <button id="cancelPublish" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition">
+            Cancel
+          </button>
+          <button id="confirmPublish" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+            Publish
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Mock data
+      let results = [
+        {
+          id: 1,
+          course: 'CS101: Introduction to Programming',
+          department: 'CS',
+          semester: '1',
+          students: 45,
+          status: 'pending'
+        },
+        {
+          id: 2,
+          course: 'EE201: Circuit Theory',
+          department: 'EE',
+          semester: '2',
+          students: 38,
+          status: 'published'
+        },
+        {
+          id: 3,
+          course: 'ME301: Thermodynamics',
+          department: 'ME',
+          semester: '3',
+          students: 42,
+          status: 'pending'
+        }
+      ];
+
+      // Cache DOM elements
+      const publishAllBtn = document.getElementById('publishAllBtn');
+      const emailToggle = document.getElementById('emailToggle');
+      const smsToggle = document.getElementById('smsToggle');
+      const portalToggle = document.getElementById('portalToggle');
+      const publicToggle = document.getElementById('publicToggle');
+      const departmentFilter = document.getElementById('departmentFilter');
+      const semesterFilter = document.getElementById('semesterFilter');
+      const resultsTableBody = document.getElementById('resultsTableBody');
+      const publishModal = document.getElementById('publishModal');
+      const cancelPublish = document.getElementById('cancelPublish');
+      const confirmPublish = document.getElementById('confirmPublish');
+      const toast = document.getElementById('toast');
+
+      let selectedCourseId = null;
+
+      // Initialize
+      updateStats();
+      renderResults();
+
+      // Event Listeners
+      publishAllBtn.addEventListener('click', handlePublishAll);
+      departmentFilter.addEventListener('change', renderResults);
+      semesterFilter.addEventListener('change', renderResults);
+      cancelPublish.addEventListener('click', () => publishModal.classList.add('hidden'));
+      confirmPublish.addEventListener('click', handleConfirmPublish);
+
+      // Toggle event listeners
+      [emailToggle, smsToggle, portalToggle, publicToggle].forEach(toggle => {
+        toggle.addEventListener('change', () => {
+          showToast(`${toggle.id.replace('Toggle', '')} notifications ${toggle.checked ? 'enabled' : 'disabled'}`);
+        });
+      });
+
+      function updateStats() {
+        const stats = {
+          published: results.filter(r => r.status === 'published').length,
+          pending: results.filter(r => r.status === 'pending').length,
+          totalStudents: results.reduce((sum, r) => sum + r.students, 0),
+          departments: new Set(results.map(r => r.department)).size
+        };
+
+        document.getElementById('publishedCount').textContent = stats.published;
+        document.getElementById('pendingCount').textContent = stats.pending;
+        document.getElementById('totalStudents').textContent = stats.totalStudents;
+        document.getElementById('departmentCount').textContent = stats.departments;
+      }
+
+      function renderResults() {
+        const department = departmentFilter.value;
+        const semester = semesterFilter.value;
+
+        const filtered = results.filter(result => {
+          if (department && result.department !== department) return false;
+          if (semester && result.semester !== semester) return false;
+          return true;
+        });
+
+        resultsTableBody.innerHTML = filtered.map(result => `
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+              ${result.course}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              ${result.department}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              ${result.semester}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              ${result.students}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="px-2 py-1 text-xs font-medium rounded-full ${
+                result.status === 'published' 
+                  ? 'bg-green-100 text-green-800' 
+                  : 'bg-yellow-100 text-yellow-800'
+              }">
+                ${result.status.charAt(0).toUpperCase() + result.status.slice(1)}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              ${result.status === 'pending' ? `
+                <button onclick="showPublishModal(${result.id})" 
+                  class="text-indigo-600 hover:text-indigo-900">
+                  Publish
+                </button>
+              ` : `
+                <button onclick="unpublishResult(${result.id})"
+                  class="text-red-600 hover:text-red-900">
+                  Unpublish
+                </button>
+              `}
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      function handlePublishAll() {
+        const pendingResults = results.filter(r => r.status === 'pending');
+        if (!pendingResults.length) {
+          showToast('No pending results to publish', 'warning');
+          return;
+        }
+
+        results.forEach(result => {
+          if (result.status === 'pending') {
+            result.status = 'published';
+          }
+        });
+
+        updateStats();
+        renderResults();
+        showToast('All results published successfully');
+      }
+
+      window.showPublishModal = (courseId) => {
+        selectedCourseId = courseId;
+        publishModal.classList.remove('hidden');
+      };
+
+      window.unpublishResult = (courseId) => {
+        const result = results.find(r => r.id === courseId);
+        if (result) {
+          result.status = 'pending';
+          updateStats();
+          renderResults();
+          showToast('Result unpublished successfully');
+        }
+      };
+
+      function handleConfirmPublish() {
+        const result = results.find(r => r.id === selectedCourseId);
+        if (result) {
+          result.status = 'published';
+          updateStats();
+          renderResults();
+          publishModal.classList.add('hidden');
+          showToast('Result published successfully');
+        }
+      }
+
+      function showToast(message, type = 'success') {
+        toast.className = `toast fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg ${
+          type === 'warning' ? 'bg-yellow-500' : 'bg-green-500'
+        } text-white`;
+        toast.textContent = message;
+        toast.classList.add('show');
+        
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 3000);
+      }
+    });
+  </script>
+</body>
+</html>

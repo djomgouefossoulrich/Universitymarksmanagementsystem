@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Weekly Timetable</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-6">
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="border-b border-gray-200 p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800">Weekly Timetable</h1>
+                    <div class="flex space-x-2">
+                        <button id="prevWeek" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition">Previous</button>
+                        <button id="today" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition">Today</button>
+                        <button id="nextWeek" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition">Next</button>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <h2 id="currentWeek" class="text-xl font-medium text-gray-700">April 22 - April 28, 2025</h2>
+                    <div class="flex space-x-4">
+                        <select id="viewSelector" class="border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="weekView">Week View</option>
+                            <option value="dayView">Day View</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Week View -->
+            <div id="weekViewContainer" class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="py-4 px-2 w-20 border-r border-gray-200"></th>
+                            <th class="py-4 px-2 border-r border-gray-200 w-1/7">
+                                <div id="monday-date" class="text-center font-medium">Monday</div>
+                                <div id="monday-full" class="text-center text-sm text-gray-500">Apr 21</div>
+                            </th>
+                            <th class="py-4 px-2 border-r border-gray-200 w-1/7">
+                                <div id="tuesday-date" class="text-center font-medium">Tuesday</div>
+                                <div id="tuesday-full" class="text-center text-sm text-gray-500">Apr 22</div>
+                            </th>
+                            <th class="py-4 px-2 border-r border-gray-200 w-1/7">
+                                <div id="wednesday-date" class="text-center font-medium">Wednesday</div>
+                                <div id="wednesday-full" class="text-center text-sm text-gray-500">Apr 23</div>
+                            </th>
+                            <th class="py-4 px-2 border-r border-gray-200 w-1/7">
+                                <div id="thursday-date" class="text-center font-medium">Thursday</div>
+                                <div id="thursday-full" class="text-center text-sm text-gray-500">Apr 24</div>
+                            </th>
+                            <th class="py-4 px-2 border-r border-gray-200 w-1/7">
+                                <div id="friday-date" class="text-center font-medium">Friday</div>
+                                <div id="friday-full" class="text-center text-sm text-gray-500">Apr 25</div>
+                            </th>
+                            <th class="py-4 px-2 border-r border-gray-200 w-1/7">
+                                <div id="saturday-date" class="text-center font-medium">Saturday</div>
+                                <div id="saturday-full" class="text-center text-sm text-gray-500">Apr 26</div>
+                            </th>
+                            <th class="py-4 px-2 w-1/7">
+                                <div id="sunday-date" class="text-center font-medium">Sunday</div>
+                                <div id="sunday-full" class="text-center text-sm text-gray-500">Apr 27</div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="timetableBody">
+                        <!-- Time slots will be generated here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Day View -->
+            <div id="dayViewContainer" class="hidden p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <button id="prevDay" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition">Previous Day</button>
+                    <h2 id="currentDay" class="text-xl font-medium text-gray-700">Tuesday, April 22, 2025</h2>
+                    <button id="nextDay" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition">Next Day</button>
+                </div>
+                <div id="daySchedule" class="space-y-4">
+                    <!-- Day schedule will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample course data - in a real application, this would come from an API or database
+        const courseData = [
+            { id: 1, name: "Mathematics", day: "Monday", startTime: "08:00", endTime: "09:30", room: "Room 101", color: "bg-blue-200 border-blue-500" },
+            { id: 2, name: "Computer Science", day: "Monday", startTime: "10:00", endTime: "11:30", room: "Lab 203", color: "bg-green-200 border-green-500" },
+            { id: 3, name: "Physics", day: "Tuesday", startTime: "09:00", endTime: "10:30", room: "Room 105", color: "bg-red-200 border-red-500" },
+            { id: 4, name: "Chemistry Lab", day: "Tuesday", startTime: "13:00", endTime: "15:00", room: "Lab 302", color: "bg-purple-200 border-purple-500" },
+            { id: 5, name: "English Literature", day: "Wednesday", startTime: "11:00", endTime: "12:30", room: "Room 202", color: "bg-yellow-200 border-yellow-500" },
+            { id: 6, name: "History", day: "Wednesday", startTime: "14:00", endTime: "15:30", room: "Room 107", color: "bg-indigo-200 border-indigo-500" },
+            { id: 7, name: "Art", day: "Thursday", startTime: "10:00", endTime: "12:00", room: "Studio 401", color: "bg-pink-200 border-pink-500" },
+            { id: 8, name: "Biology", day: "Friday", startTime: "09:00", endTime: "10:30", room: "Room 108", color: "bg-teal-200 border-teal-500" },
+            { id: 9, name: "Economics", day: "Friday", startTime: "13:00", endTime: "14:30", room: "Room 205", color: "bg-orange-200 border-orange-500" }
+        ];
+
+        // Time slots from 8:00 to 18:00
+        const timeSlots = Array.from({ length: 11 }, (_, i) => {
+            const hour = i + 8;
+            return `${hour.toString().padStart(2, '0')}:00`;
+        });
+
+        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+        
+        // Current date and week management
+        let currentDate = new Date();
+        let currentWeekStart;
+        let selectedDay = currentDate.getDay(); // 0 is Sunday, 1 is Monday, etc.
+        
+        // Initialize timetable
+        function initTimetable() {
+            generateTimeTable();
+            updateWeekDisplay();
+            updateDayView();
+            setupEventListeners();
+            highlightToday();
+        }
+
+        // Generate the time table structure
+        function generateTimeTable() {
+            const timetableBody = document.getElementById('timetableBody');
+            timetableBody.innerHTML = '';
+
+            timeSlots.forEach((timeSlot, index) => {
+                const row = document.createElement('tr');
+                row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                
+                // Time column
+                const timeCell = document.createElement('td');
+                timeCell.className = 'border-r border-gray-200 py-2 px-2 text-center text-sm font-medium text-gray-500';
+                timeCell.textContent = timeSlot;
+                row.appendChild(timeCell);
+                
+                // Day columns
+                days.forEach(day => {
+                    const dayCell = document.createElement('td');
+                    dayCell.className = 'border-r border-gray-200 py-2 px-2 h-16 relative';
+                    dayCell.setAttribute('data-day', day);
+                    dayCell.setAttribute('data-time', timeSlot);
+                    
+                    // Find courses for this day and time slot
+                    const coursesForSlot = courseData.filter(course => {
+                        return course.day === day && 
+                               timeSlot >= course.startTime.substring(0, 5) && 
+                               timeSlot < course.endTime.substring(0, 5);
+                    });
+                    
+                    // Add courses to the cell
+                    coursesForSlot.forEach(course => {
+                        // Only show the course at its start time to avoid duplication
+                        if (timeSlot === course.startTime.substring(0, 5)) {
+                            const courseDiv = document.createElement('div');
+                            courseDiv.className = `${course.color} border-l-4 p-2 rounded shadow-sm mb-1 cursor-pointer hover:shadow`;
+                            courseDiv.setAttribute('data-course-id', course.id);
+                            
+                            const courseName = document.createElement('div');
+                            courseName.className = 'font-medium text-sm';
+                            courseName.textContent = course.name;
+                            
+                            const courseTime = document.createElement('div');
+                            courseTime.className = 'text-xs text-gray-600';
+                            courseTime.textContent = `${course.startTime} - ${course.endTime}`;
+                            
+                            const courseRoom = document.createElement('div');
+                            courseRoom.className = 'text-xs text-gray-600';
+                            courseRoom.textContent = course.room;
+                            
+                            courseDiv.appendChild(courseName);
+                            courseDiv.appendChild(courseTime);
+                            courseDiv.appendChild(courseRoom);
+                            
+                            // Add click event to show more details
+                            courseDiv.addEventListener('click', () => {
+                                alert(`Course: ${course.name}\nTime: ${course.startTime} - ${course.endTime}\nRoom: ${course.room}`);
+                            });
+                            
+                            dayCell.appendChild(courseDiv);
+                        }
+                    });
+                    
+                    row.appendChild(dayCell);
+                });
+                
+                timetableBody.appendChild(row);
+            });
+        }
+
+        // Update the week display
+        function updateWeekDisplay() {
+            // Get the start of the week (Monday)
+            const day = currentDate.getDay();
+            const diff = currentDate.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is Sunday
+            currentWeekStart = new Date(currentDate.setDate(diff));
+            
+            // Format dates for the week display
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            
+            const options = { month: 'long', day: 'numeric', year: 'numeric' };
+            document.getElementById('currentWeek').textContent = 
+                `${currentWeekStart.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', options)}`;
+            
+            // Update day headers
+            for (let i = 0; i < 7; i++) {
+                const dayDate = new Date(currentWeekStart);
+                dayDate.setDate(dayDate.getDate() + i);
+                
+                const dayName = days[i === 6 ? 0 : i + 1]; // Adjust for Sunday
+                const elementId = dayName.toLowerCase();
+                
+                document.getElementById(`${elementId}-full`).textContent = dayDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }
+        }
+
+        // Update the day view
+        function updateDayView() {
+            // Determine which day to show
+            let dayToShow;
+            if (selectedDay === 0) { // Sunday
+                dayToShow = days[6];
+            } else {
+                dayToShow = days[selectedDay - 1];
+            }
+            
+            // Update the current day header
+            const dayDate = new Date(currentWeekStart);
+            dayDate.setDate(dayDate.getDate() + (selectedDay === 0 ? 6 : selectedDay - 1));
+            document.getElementById('currentDay').textContent = dayDate.toLocaleDateString('en-US', { 
+                weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' 
+            });
+            
+            // Get courses for the selected day
+            const dayCourses = courseData.filter(course => course.day === dayToShow);
+            
+            // Sort courses by start time
+            dayCourses.sort((a, b) => a.startTime.localeCompare(b.startTime));
+            
+            // Generate day schedule
+            const daySchedule = document.getElementById('daySchedule');
+            daySchedule.innerHTML = '';
+            
+            if (dayCourses.length === 0) {
+                const emptyMessage = document.createElement('div');
+                emptyMessage.className = 'text-center py-8 text-gray-500';
+                emptyMessage.textContent = 'No classes scheduled for this day.';
+                daySchedule.appendChild(emptyMessage);
+            } else {
+                dayCourses.forEach(course => {
+                    const courseCard = document.createElement('div');
+                    courseCard.className = `${course.color} border-l-4 p-4 rounded-lg shadow`;
+                    
+                    const courseHeader = document.createElement('div');
+                    courseHeader.className = 'flex justify-between items-center mb-2';
+                    
+                    const courseName = document.createElement('h3');
+                    courseName.className = 'font-bold text-lg';
+                    courseName.textContent = course.name;
+                    
+                    const courseTime = document.createElement('span');
+                    courseTime.className = 'text-sm text-gray-700';
+                    courseTime.textContent = `${course.startTime} - ${course.endTime}`;
+                    
+                    courseHeader.appendChild(courseName);
+                    courseHeader.appendChild(courseTime);
+                    
+                    const courseRoom = document.createElement('div');
+                    courseRoom.className = 'text-md text-gray-700';
+                    courseRoom.textContent = `Location: ${course.room}`;
+                    
+                    courseCard.appendChild(courseHeader);
+                    courseCard.appendChild(courseRoom);
+                    daySchedule.appendChild(courseCard);
+                });
+            }
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // View selector
+            document.getElementById('viewSelector').addEventListener('change', function() {
+                if (this.value === 'weekView') {
+                    document.getElementById('weekViewContainer').classList.remove('hidden');
+                    document.getElementById('dayViewContainer').classList.add('hidden');
+                } else {
+                    document.getElementById('weekViewContainer').classList.add('hidden');
+                    document.getElementById('dayViewContainer').classList.remove('hidden');
+                }
+            });
+            
+            // Week navigation
+            document.getElementById('prevWeek').addEventListener('click', () => {
+                currentDate.setDate(currentDate.getDate() - 7);
+                updateWeekDisplay();
+                updateDayView();
+                highlightToday();
+            });
+            
+            document.getElementById('nextWeek').addEventListener('click', () => {
+                currentDate.setDate(currentDate.getDate() + 7);
+                updateWeekDisplay();
+                updateDayView();
+                highlightToday();
+            });
+            
+            document.getElementById('today').addEventListener('click', () => {
+                currentDate = new Date();
+                selectedDay = currentDate.getDay();
+                updateWeekDisplay();
+                updateDayView();
+                highlightToday();
+            });
+            
+            // Day navigation
+            document.getElementById('prevDay').addEventListener('click', () => {
+                selectedDay = selectedDay === 0 ? 6 : selectedDay - 1;
+                updateDayView();
+            });
+            
+            document.getElementById('nextDay').addEventListener('click', () => {
+                selectedDay = selectedDay === 6 ? 0 : selectedDay + 1;
+                updateDayView();
+            });
+        }
+
+        // Highlight today in the week view
+        function highlightToday() {
+            // Remove previous highlights
+            const allDateCells = document.querySelectorAll('th[id$="-date"]');
+            allDateCells.forEach(cell => {
+                cell.parentElement.classList.remove('bg-blue-100');
+            });
+            
+            // Check if current week contains today
+            const today = new Date();
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            
+            if (today >= currentWeekStart && today <= weekEnd) {
+                const todayDay = today.getDay();
+                const dayIndex = todayDay === 0 ? 6 : todayDay - 1; // Adjust for Sunday
+                const dayName = days[dayIndex];
+                const cellId = `${dayName.toLowerCase()}-date`;
+                
+                // Highlight the column
+                const cell = document.getElementById(cellId);
+                if (cell) {
+                    cell.parentElement.classList.add('bg-blue-100');
+                }
+            }
+        }
+
+        // Initialize when the page loads
+        document.addEventListener('DOMContentLoaded', initTimetable);
+    </script>
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Performance Tracking System</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chart.js/3.9.1/chart.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold text-center text-blue-800">Student Performance Tracking System</h1>
+      <p class="text-center text-gray-600">Manage and track student performance efficiently</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Left Panel - Student Form -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold mb-4 text-blue-700">Add/Edit Student</h2>
+        <form id="studentForm" class="space-y-4">
+          <input type="hidden" id="studentId">
+          <div>
+            <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+            <input type="text" id="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border" required>
+          </div>
+          <div>
+            <label for="regNumber" class="block text-sm font-medium text-gray-700">Registration Number</label>
+            <input type="text" id="regNumber" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border" required>
+          </div>
+          <div>
+            <label for="course" class="block text-sm font-medium text-gray-700">Course</label>
+            <input type="text" id="course" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border" required>
+          </div>
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label for="assignment" class="block text-sm font-medium text-gray-700">Assignment (30%)</label>
+              <input type="number" id="assignment" min="0" max="30" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border" required>
+            </div>
+            <div>
+              <label for="midterm" class="block text-sm font-medium text-gray-700">Midterm (20%)</label>
+              <input type="number" id="midterm" min="0" max="20" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border" required>
+            </div>
+            <div>
+              <label for="final" class="block text-sm font-medium text-gray-700">Final Exam (50%)</label>
+              <input type="number" id="final" min="0" max="50" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border" required>
+            </div>
+          </div>
+          <div class="flex space-x-4">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline flex-1">Save Student</button>
+            <button type="button" id="resetBtn" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Reset</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Middle Panel - Statistics -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold mb-4 text-blue-700">Class Statistics</h2>
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-medium text-gray-700">Performance Overview</h3>
+            <canvas id="performanceChart" height="200"></canvas>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-blue-50 p-4 rounded-lg">
+              <p class="text-sm text-gray-600">Class Average</p>
+              <p id="classAverage" class="text-2xl font-bold text-blue-700">0%</p>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg">
+              <p class="text-sm text-gray-600">Pass Rate</p>
+              <p id="passRate" class="text-2xl font-bold text-green-700">0%</p>
+            </div>
+            <div class="bg-yellow-50 p-4 rounded-lg">
+              <p class="text-sm text-gray-600">Highest Score</p>
+              <p id="highestScore" class="text-2xl font-bold text-yellow-700">0%</p>
+            </div>
+            <div class="bg-red-50 p-4 rounded-lg">
+              <p class="text-sm text-gray-600">Lowest Score</p>
+              <p id="lowestScore" class="text-2xl font-bold text-red-700">0%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel - Student List -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold mb-4 text-blue-700">Student List</h2>
+        <div class="mb-4">
+          <label for="search" class="block text-sm font-medium text-gray-700">Search Students</label>
+          <input type="text" id="search" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border" placeholder="Name or Reg Number">
+        </div>
+        <div class="overflow-y-auto max-h-96">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="studentList" class="bg-white divide-y divide-gray-200">
+              <!-- Student rows will be added here dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student Details Modal -->
+    <div id="studentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold text-blue-800" id="modalStudentName">Student Details</h2>
+          <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="text-lg font-semibold mb-2">Personal Information</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="mb-2"><span class="font-medium">Registration Number:</span> <span id="modalRegNumber"></span></p>
+              <p class="mb-2"><span class="font-medium">Course:</span> <span id="modalCourse"></span></p>
+            </div>
+            
+            <h3 class="text-lg font-semibold mb-2 mt-4">Performance</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="mb-2"><span class="font-medium">Assignment:</span> <span id="modalAssignment"></span>/30</p>
+              <p class="mb-2"><span class="font-medium">Midterm:</span> <span id="modalMidterm"></span>/20</p>
+              <p class="mb-2"><span class="font-medium">Final Exam:</span> <span id="modalFinal"></span>/50</p>
+              <p class="font-bold text-xl mt-2"><span>Total Score:</span> <span id="modalTotal" class="text-blue-700"></span>/100</p>
+              <p class="font-bold"><span>Grade:</span> <span id="modalGrade" class="text-lg"></span></p>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold mb-2">Performance Analysis</h3>
+            <div class="mb-4">
+              <canvas id="studentChart" height="180"></canvas>
+            </div>
+            <div id="modalFeedback" class="bg-blue-50 p-4 rounded-lg">
+              <h4 class="font-semibold text-blue-800 mb-2">Feedback & Recommendations</h4>
+              <p id="feedbackText" class="text-sm"></p>
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-4">
+          <button id="editStudent" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Edit</button>
+          <button id="deleteStudent" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Delete</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Initialize data
+    let students = JSON.parse(localStorage.getItem('students')) || [];
+    let selectedStudentId = null;
+    let performanceChart = null;
+    let studentChart = null;
+
+    // DOM elements
+    const studentForm = document.getElementById('studentForm');
+    const resetBtn = document.getElementById('resetBtn');
+    const studentList = document.getElementById('studentList');
+    const searchInput = document.getElementById('search');
+    const studentModal = document.getElementById('studentModal');
+    const closeModal = document.getElementById('closeModal');
+    const editStudent = document.getElementById('editStudent');
+    const deleteStudent = document.getElementById('deleteStudent');
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', () => {
+      renderStudentList();
+      updateStatistics();
+      initializeCharts();
+
+      // Event listeners
+      studentForm.addEventListener('submit', handleFormSubmit);
+      resetBtn.addEventListener('click', resetForm);
+      searchInput.addEventListener('input', renderStudentList);
+      closeModal.addEventListener('click', () => studentModal.classList.add('hidden'));
+      editStudent.addEventListener('click', handleEditStudent);
+      deleteStudent.addEventListener('click', handleDeleteStudent);
+    });
+
+    // Form submission handler
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      
+      const studentData = {
+        id: document.getElementById('studentId').value || Date.now().toString(),
+        name: document.getElementById('name').value,
+        regNumber: document.getElementById('regNumber').value,
+        course: document.getElementById('course').value,
+        assignment: parseInt(document.getElementById('assignment').value),
+        midterm: parseInt(document.getElementById('midterm').value),
+        final: parseInt(document.getElementById('final').value)
+      };
+      
+      // Calculate total score
+      studentData.total = studentData.assignment + studentData.midterm + studentData.final;
+      
+      // Add or update student
+      if (document.getElementById('studentId').value) {
+        // Update existing student
+        const index = students.findIndex(s => s.id === studentData.id);
+        if (index !== -1) {
+          students[index] = studentData;
+        }
+      } else {
+        // Add new student
+        students.push(studentData);
+      }
+      
+      // Save to localStorage
+      localStorage.setItem('students', JSON.stringify(students));
+      
+      // Update UI
+      resetForm();
+      renderStudentList();
+      updateStatistics();
+      updateCharts();
+      
+      // Show success message
+      alert(document.getElementById('studentId').value ? 'Student updated successfully!' : 'Student added successfully!');
+    }
+
+    // Reset form fields
+    function resetForm() {
+      document.getElementById('studentId').value = '';
+      document.getElementById('name').value = '';
+      document.getElementById('regNumber').value = '';
+      document.getElementById('course').value = '';
+      document.getElementById('assignment').value = '';
+      document.getElementById('midterm').value = '';
+      document.getElementById('final').value = '';
+      selectedStudentId = null;
+    }
+
+    // Generate grade based on score
+    function getGrade(score) {
+      if (score >= 90) return 'A+';
+      if (score >= 85) return 'A';
+      if (score >= 80) return 'A-';
+      if (score >= 75) return 'B+';
+      if (score >= 70) return 'B';
+      if (score >= 65) return 'B-';
+      if (score >= 60) return 'C+';
+      if (score >= 55) return 'C';
+      if (score >= 50) return 'C-';
+      if (score >= 45) return 'D+';
+      if (score >= 40) return 'D';
+      return 'F';
+    }
+
+    // Get grade color based on score
+    function getGradeColor(score) {
+      if (score >= 80) return 'text-green-700';
+      if (score >= 70) return 'text-blue-700';
+      if (score >= 60) return 'text-yellow-700';
+      if (score >= 50) return 'text-orange-700';
+      return 'text-red-700';
+    }
+
+    // Generate feedback based on score
+    function generateFeedback(student) {
+      const score = student.total;
+      let feedback = '';
+      
+      if (score >= 80) {
+        feedback = `Excellent performance across all assessments. ${student.name} demonstrates strong understanding of the course material.`;
+      } else if (score >= 70) {
+        feedback = `Good performance overall. ${student.name} has shown consistent effort throughout the course.`;
+      } else if (score >= 60) {
+        feedback = `Satisfactory performance. ${student.name} should focus on strengthening understanding in some areas.`;
+      } else if (score >= 50) {
+        feedback = `Passing performance, but improvement needed. ${student.name} should seek additional support to strengthen core concepts.`;
+      } else {
+        feedback = `Needs significant improvement. Recommend scheduling a meeting with ${student.name} to discuss strategies for improvement.`;
+      }
+      
+      // Add specific recommendations based on component scores
+      const lowestComponent = student.assignment < student.midterm/20*30 && student.assignment < student.final/50*30 ? 'assignments' :
+                             student.midterm/20 < student.assignment/30 && student.midterm/20 < student.final/50 ? 'midterm exams' : 'final exam';
+      
+      feedback += ` Focus areas for improvement: ${lowestComponent}.`;
+      
+      return feedback;
+    }
+
+    // Render student list
+    function renderStudentList() {
+      studentList.innerHTML = '';
+      const searchTerm = searchInput.value.toLowerCase();
+      
+      const filteredStudents = students.filter(student => 
+        student.name.toLowerCase().includes(searchTerm) || 
+        student.regNumber.toLowerCase().includes(searchTerm)
+      );
+      
+      if (filteredStudents.length === 0) {
+        studentList.innerHTML = `
+          <tr>
+            <td colspan="3" class="px-6 py-4 text-center text-gray-500">No students found</td>
+          </tr>
+        `;
+        return;
+      }
+      
+      filteredStudents.forEach(student => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="font-medium text-gray-900">${student.name}</div>
+            <div class="text-sm text-gray-500">${student.regNumber}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+              student.total >= 70 ? 'bg-green-100 text-green-800' : 
+              student.total >= 60 ? 'bg-blue-100 text-blue-800' : 
+              student.total >= 50 ? 'bg-yellow-100 text-yellow-800' : 
+              'bg-red-100 text-red-800'
+            }">
+              ${student.total}%
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <button class="text-blue-600 hover:text-blue-900 view-btn" data-id="${student.id}">View</button>
+          </td>
+        `;
+        studentList.appendChild(row);
+        
+        // Add event listener to view button
+        row.querySelector('.view-btn').addEventListener('click', () => showStudentDetails(student.id));
+      });
+    }
+
+    // Show student details
+    function showStudentDetails(studentId) {
+      const student = students.find(s => s.id === studentId);
+      if (!student) return;
+      
+      selectedStudentId = studentId;
+      
+      // Update modal with student details
+      document.getElementById('modalStudentName').textContent = student.name;
+      document.getElementById('modalRegNumber').textContent = student.regNumber;
+      document.getElementById('modalCourse').textContent = student.course;
+      document.getElementById('modalAssignment').textContent = student.assignment;
+      document.getElementById('modalMidterm').textContent = student.midterm;
+      document.getElementById('modalFinal').textContent = student.final;
+      document.getElementById('modalTotal').textContent = student.total;
+      
+      const gradeElement = document.getElementById('modalGrade');
+      gradeElement.textContent = getGrade(student.total);
+      gradeElement.className = getGradeColor(student.total);
+      
+      document.getElementById('feedbackText').textContent = generateFeedback(student);
+      
+      // Update student chart
+      updateStudentChart(student);
+      
+      // Show modal
+      studentModal.classList.remove('hidden');
+    }
+
+    // Handle edit student
+    function handleEditStudent() {
+      const student = students.find(s => s.id === selectedStudentId);
+      if (!student) return;
+      
+      // Populate form with student data
+      document.getElementById('studentId').value = student.id;
+      document.getElementById('name').value = student.name;
+      document.getElementById('regNumber').value = student.regNumber;
+      document.getElementById('course').value = student.course;
+      document.getElementById('assignment').value = student.assignment;
+      document.getElementById('midterm').value = student.midterm;
+      document.getElementById('final').value = student.final;
+      
+      // Close modal
+      studentModal.classList.add('hidden');
+      
+      // Scroll to form
+      document.querySelector('header').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Handle delete student
+    function handleDeleteStudent() {
+      if (!confirm('Are you sure you want to delete this student?')) return;
+      
+      students = students.filter(s => s.id !== selectedStudentId);
+      localStorage.setItem('students', JSON.stringify(students));
+      
+      studentModal.classList.add('hidden');
+      renderStudentList();
+      updateStatistics();
+      updateCharts();
+      
+      alert('Student deleted successfully!');
+    }
+
+    // Update statistics
+    function updateStatistics() {
+      if (students.length === 0) {
+        document.getElementById('classAverage').textContent = '0%';
+        document.getElementById('passRate').textContent = '0%';
+        document.getElementById('highestScore').textContent = '0%';
+        document.getElementById('lowestScore').textContent = '0%';
+        return;
+      }
+      
+      const totalScores = students.map(s => s.total);
+      const average = totalScores.reduce((a, b) => a + b, 0) / totalScores.length;
+      const passCount = totalScores.filter(score => score >= 50).length;
+      const passRate = (passCount / totalScores.length) * 100;
+      const highest = Math.max(...totalScores);
+      const lowest = Math.min(...totalScores);
+      
+      document.getElementById('classAverage').textContent = `${average.toFixed(1)}%`;
+      document.getElementById('passRate').textContent = `${passRate.toFixed(1)}%`;
+      document.getElementById('highestScore').textContent = `${highest}%`;
+      document.getElementById('lowestScore').textContent = `${lowest}%`;
+    }
+
+    // Initialize charts
+    function initializeCharts() {
+      // Performance chart
+      const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+      performanceChart = new Chart(performanceCtx, {
+        type: 'bar',
+        data: {
+          labels: ['A (80-100)', 'B (70-79)', 'C (60-69)', 'D (50-59)', 'F (<50)'],
+          datasets: [{
+            label: 'Number of Students',
+            data: [0, 0, 0, 0, 0],
+            backgroundColor: [
+              'rgba(34, 197, 94, 0.6)',
+              'rgba(59, 130, 246, 0.6)',
+              'rgba(250, 204, 21, 0.6)',
+              'rgba(249, 115, 22, 0.6)',
+              'rgba(239, 68, 68, 0.6)'
+            ],
+            borderColor: [
+              'rgba(34, 197, 94, 1)',
+              'rgba(59, 130, 246, 1)',
+              'rgba(250, 204, 21, 1)',
+              'rgba(249, 115, 22, 1)',
+              'rgba(239, 68, 68, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          }
+        }
+      });
+      
+      // Student chart (empty initially)
+      const studentCtx = document.getElementById('studentChart').getContext('2d');
+      studentChart = new Chart(studentCtx, {
+        type: 'radar',
+        data: {
+          labels: ['Assignment', 'Midterm', 'Final Exam'],
+          datasets: [{
+            label: 'Student Performance',
+            data: [0, 0, 0],
+            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+            borderColor: 'rgba(59, 130, 246, 1)',
+            borderWidth: 2,
+            pointBackgroundColor: 'rgba(59, 130, 246, 1)'
+          }, {
+            label: 'Class Average',
+            data: [0, 0, 0],
+            backgroundColor: 'rgba(107, 114, 128, 0.2)',
+            borderColor: 'rgba(107, 114, 128, 1)',
+            borderWidth: 2,
+            pointBackgroundColor: 'rgba(107, 114, 128, 1)'
+          }]
+        },
+        options: {
+          scales: {
+            r: {
+              angleLines: {
+                display: true
+              },
+              suggestedMin: 0,
+              suggestedMax: 100
+            }
+          }
+        }
+      });
+      
+      updateCharts();
+    }
+
+    // Update charts with current data
+    function updateCharts() {
+      if (students.length === 0) return;
+      
+      // Update performance chart with grade distribution
+      const gradeDistribution = [0, 0, 0, 0, 0]; // A, B, C, D, F
+      
+      students.forEach(student => {
+        if (student.total >= 80) gradeDistribution[0]++;
+        else if (student.total >= 70) gradeDistribution[1]++;
+        else if (student.total >= 60) gradeDistribution[2]++;
+        else if (student.total >= 50) gradeDistribution[3]++;
+        else gradeDistribution[4]++;
+      });
+      
+      performanceChart.data.datasets[0].data = gradeDistribution;
+      performanceChart.update();
+    }
+
+    // Update student chart
+    function updateStudentChart(student) {
+      if (!student) return;
+      
+      // Calculate class averages
+      const avgAssignment = students.reduce((sum, s) => sum + s.assignment, 0) / students.length;
+      const avgMidterm = students.reduce((sum, s) => sum + s.midterm, 0) / students.length;
+      const avgFinal = students.reduce((sum, s) => sum + s.final, 0) / students.length;
+      
+      // Normalize to percentages
+      const studentData = [
+        (student.assignment / 30) * 100,
+        (student.midterm / 20) * 100,
+        (student.final / 50) * 100
+      ];
+      
+      const classData = [
+        (avgAssignment / 30) * 100,
+        (avgMidterm / 20) * 100,
+        (avgFinal / 50) * 100
+      ];
+      
+      studentChart.data.datasets[0].data = studentData;
+      studentChart.data.datasets[1].data = classData;
+      studentChart.update();
+    }
+  </script>
+</body>
+</html>
