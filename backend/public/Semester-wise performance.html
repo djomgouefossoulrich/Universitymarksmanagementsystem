@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Academic Records</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chart.js/3.9.1/chart.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto p-4">
+        <header class="bg-blue-600 text-white p-4 rounded-lg shadow-md mb-6">
+            <h1 class="text-2xl font-bold">Student Academic Records</h1>
+            <p class="text-sm">Manage your semester-wise academic performance</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Left Panel - Add New Semester/Course -->
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Add New Data</h2>
+                
+                <!-- Semester Form -->
+                <div class="mb-6 p-4 bg-gray-50 rounded-md">
+                    <h3 class="text-lg font-medium text-gray-700 mb-2">Add New Semester</h3>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="semesterName">
+                            Semester Name
+                        </label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            id="semesterName" type="text" placeholder="e.g. Fall 2024">
+                    </div>
+                    <button id="addSemesterBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
+                        Add Semester
+                    </button>
+                </div>
+                
+                <!-- Course Form -->
+                <div class="p-4 bg-gray-50 rounded-md">
+                    <h3 class="text-lg font-medium text-gray-700 mb-2">Add Course to Semester</h3>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="semesterSelect">
+                            Select Semester
+                        </label>
+                        <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            id="semesterSelect">
+                            <option value="">-- Select Semester --</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="courseCode">
+                            Course Code
+                        </label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            id="courseCode" type="text" placeholder="e.g. CS101">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="courseName">
+                            Course Name
+                        </label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            id="courseName" type="text" placeholder="e.g. Introduction to Programming">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="creditHours">
+                            Credit Hours
+                        </label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            id="creditHours" type="number" min="1" max="6" placeholder="3">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="grade">
+                            Grade
+                        </label>
+                        <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            id="grade">
+                            <option value="A+">A+</option>
+                            <option value="A">A</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B">B</option>
+                            <option value="B-">B-</option>
+                            <option value="C+">C+</option>
+                            <option value="C">C</option>
+                            <option value="C-">C-</option>
+                            <option value="D+">D+</option>
+                            <option value="D">D</option>
+                            <option value="F">F</option>
+                        </select>
+                    </div>
+                    <button id="addCourseBtn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
+                        Add Course
+                    </button>
+                </div>
+            </div>
+
+            <!-- Middle Panel - Academic Performance -->
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Academic Performance</h2>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="semesterViewSelect">
+                        Select Semester
+                    </label>
+                    <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                        id="semesterViewSelect">
+                        <option value="all">All Semesters</option>
+                    </select>
+                </div>
+
+                <div class="mb-6">
+                    <div class="p-4 bg-gray-50 rounded-md">
+                        <h3 class="text-lg font-medium text-gray-700 mb-2">GPA Summary</h3>
+                        <div id="gpaSummary" class="text-center p-4">
+                            <div class="text-4xl font-bold text-blue-600" id="currentGPA">0.00</div>
+                            <div class="text-sm text-gray-500">Current CGPA</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-medium text-gray-700 mb-2">Performance Chart</h3>
+                    <div class="w-full h-64">
+                        <canvas id="gpaChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Course List -->
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Course List</h2>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="semesterCoursesSelect">
+                        Select Semester
+                    </label>
+                    <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                        id="semesterCoursesSelect">
+                        <option value="all">All Semesters</option>
+                    </select>
+                </div>
+
+                <div id="courseListContainer" class="overflow-y-auto max-h-96">
+                    <!-- Course list will be populated here -->
+                    <div class="text-center py-8 text-gray-500">No courses added yet</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Store academic data
+        let academicData = {
+            semesters: [],
+            courses: []
+        };
+        
+        // Initialize chart
+        let gpaChart;
+        
+        // Grade point conversion
+        const gradePoints = {
+            'A+': 4.0,
+            'A': 4.0,
+            'A-': 3.7,
+            'B+': 3.3,
+            'B': 3.0,
+            'B-': 2.7,
+            'C+': 2.3,
+            'C': 2.0,
+            'C-': 1.7,
+            'D+': 1.3,
+            'D': 1.0,
+            'F': 0.0
+        };
+
+        // Load saved data from localStorage if available
+        function loadSavedData() {
+            const savedData = localStorage.getItem('academicData');
+            if (savedData) {
+                academicData = JSON.parse(savedData);
+                updateSemesterDropdowns();
+                updateCourseList();
+                updateGPASummary();
+                updateGPAChart();
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('academicData', JSON.stringify(academicData));
+        }
+
+        // Add new semester
+        document.getElementById('addSemesterBtn').addEventListener('click', function() {
+            const semesterName = document.getElementById('semesterName').value.trim();
+            
+            if (!semesterName) {
+                alert('Please enter a semester name');
+                return;
+            }
+            
+            // Check if semester already exists
+            if (academicData.semesters.some(sem => sem.name === semesterName)) {
+                alert('Semester already exists');
+                return;
+            }
+            
+            academicData.semesters.push({
+                id: Date.now().toString(),
+                name: semesterName
+            });
+            
+            document.getElementById('semesterName').value = '';
+            
+            updateSemesterDropdowns();
+            saveData();
+        });
+
+        // Add new course
+        document.getElementById('addCourseBtn').addEventListener('click', function() {
+            const semesterId = document.getElementById('semesterSelect').value;
+            const courseCode = document.getElementById('courseCode').value.trim();
+            const courseName = document.getElementById('courseName').value.trim();
+            const creditHours = parseInt(document.getElementById('creditHours').value);
+            const grade = document.getElementById('grade').value;
+            
+            if (!semesterId) {
+                alert('Please select a semester');
+                return;
+            }
+            
+            if (!courseCode || !courseName || isNaN(creditHours)) {
+                alert('Please fill in all course details');
+                return;
+            }
+            
+            // Check if course already exists in this semester
+            if (academicData.courses.some(course => 
+                course.semesterId === semesterId && course.code === courseCode)) {
+                alert('This course already exists in the selected semester');
+                return;
+            }
+            
+            academicData.courses.push({
+                id: Date.now().toString(),
+                semesterId: semesterId,
+                code: courseCode,
+                name: courseName,
+                creditHours: creditHours,
+                grade: grade
+            });
+            
+            // Clear form
+            document.getElementById('courseCode').value = '';
+            document.getElementById('courseName').value = '';
+            document.getElementById('creditHours').value = '';
+            document.getElementById('grade').value = 'A';
+            
+            updateCourseList();
+            updateGPASummary();
+            updateGPAChart();
+            saveData();
+        });
+
+        // Update semester dropdowns
+        function updateSemesterDropdowns() {
+            const dropdowns = [
+                document.getElementById('semesterSelect'),
+                document.getElementById('semesterViewSelect'),
+                document.getElementById('semesterCoursesSelect')
+            ];
+            
+            dropdowns.forEach(dropdown => {
+                // Preserve the "All Semesters" option if it exists
+                const firstOption = dropdown.options[0];
+                
+                // Clear dropdown
+                dropdown.innerHTML = '';
+                
+                // Re-add the first option if it was "All Semesters"
+                if (firstOption && firstOption.value === 'all') {
+                    dropdown.appendChild(firstOption);
+                } else {
+                    // Add default option for semester select dropdown
+                    dropdown.innerHTML = '<option value="">-- Select Semester --</option>';
+                }
+                
+                // Add semester options
+                academicData.semesters.forEach(semester => {
+                    const option = document.createElement('option');
+                    option.value = semester.id;
+                    option.textContent = semester.name;
+                    dropdown.appendChild(option);
+                });
+            });
+        }
+
+        // Update course list display
+        function updateCourseList() {
+            const container = document.getElementById('courseListContainer');
+            const selectedSemesterId = document.getElementById('semesterCoursesSelect').value;
+            
+            let filteredCourses;
+            if (selectedSemesterId === 'all') {
+                filteredCourses = academicData.courses;
+            } else {
+                filteredCourses = academicData.courses.filter(course => course.semesterId === selectedSemesterId);
+            }
+            
+            if (filteredCourses.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-gray-500">No courses found</div>';
+                return;
+            }
+            
+            let html = '';
+            
+            // Group courses by semester if showing all
+            if (selectedSemesterId === 'all') {
+                academicData.semesters.forEach(semester => {
+                    const semesterCourses = filteredCourses.filter(course => course.semesterId === semester.id);
+                    
+                    if (semesterCourses.length > 0) {
+                        html += `<div class="mb-4">
+                            <h3 class="font-bold text-gray-700 mb-2">${semester.name}</h3>
+                            <div class="bg-gray-50 rounded-md overflow-hidden">
+                                <table class="min-w-full">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="py-2 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
+                                            <th class="py-2 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                                            <th class="py-2 px-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Credits</th>
+                                            <th class="py-2 px-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Grade</th>
+                                            <th class="py-2 px-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+                        
+                        semesterCourses.forEach(course => {
+                            html += `<tr class="border-t border-gray-200">
+                                <td class="py-2 px-3 text-sm font-medium text-gray-900">${course.code}</td>
+                                <td class="py-2 px-3 text-sm text-gray-500">${course.name}</td>
+                                <td class="py-2 px-3 text-sm text-gray-500 text-center">${course.creditHours}</td>
+                                <td class="py-2 px-3 text-sm text-center">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${getGradeColor(course.grade)}-100 text-${getGradeColor(course.grade)}-800">
+                                        ${course.grade}
+                                    </span>
+                                </td>
+                                <td class="py-2 px-3 text-sm text-center">
+                                    <button class="text-red-600 hover:text-red-900" onclick="deleteCourse('${course.id}')">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>`;
+                        });
+                        
+                        html += `</tbody></table></div></div>`;
+                    }
+                });
+            } else {
+                // Show just the selected semester
+                html = `<div class="bg-gray-50 rounded-md overflow-hidden">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="py-2 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
+                                <th class="py-2 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                                <th class="py-2 px-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Credits</th>
+                                <th class="py-2 px-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Grade</th>
+                                <th class="py-2 px-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+                
+                filteredCourses.forEach(course => {
+                    html += `<tr class="border-t border-gray-200">
+                        <td class="py-2 px-3 text-sm font-medium text-gray-900">${course.code}</td>
+                        <td class="py-2 px-3 text-sm text-gray-500">${course.name}</td>
+                        <td class="py-2 px-3 text-sm text-gray-500 text-center">${course.creditHours}</td>
+                        <td class="py-2 px-3 text-sm text-center">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${getGradeColor(course.grade)}-100 text-${getGradeColor(course.grade)}-800">
+                                ${course.grade}
+                            </span>
+                        </td>
+                        <td class="py-2 px-3 text-sm text-center">
+                            <button class="text-red-600 hover:text-red-900" onclick="deleteCourse('${course.id}')">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>`;
+                });
+                
+                html += `</tbody></table></div>`;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Delete course
+        window.deleteCourse = function(courseId) {
+            if (confirm('Are you sure you want to delete this course?')) {
+                academicData.courses = academicData.courses.filter(course => course.id !== courseId);
+                updateCourseList();
+                updateGPASummary();
+                updateGPAChart();
+                saveData();
+            }
+        };
+
+        // Get color based on grade
+        function getGradeColor(grade) {
+            if (grade.startsWith('A')) return 'green';
+            if (grade.startsWith('B')) return 'blue';
+            if (grade.startsWith('C')) return 'yellow';
+            if (grade.startsWith('D')) return 'orange';
+            return 'red';
+        }
+
+        // Calculate GPA
+        function calculateGPA(courses) {
+            if (courses.length === 0) return 0;
+            
+            let totalPoints = 0;
+            let totalCredits = 0;
+            
+            courses.forEach(course => {
+                totalPoints += gradePoints[course.grade] * course.creditHours;
+                totalCredits += course.creditHours;
+            });
+            
+            return totalCredits > 0 ? totalPoints / totalCredits : 0;
+        }
+
+        // Update GPA summary
+        function updateGPASummary() {
+            const selectedSemesterId = document.getElementById('semesterViewSelect').value;
+            let filteredCourses;
+            
+            if (selectedSemesterId === 'all') {
+                filteredCourses = academicData.courses;
+            } else {
+                filteredCourses = academicData.courses.filter(course => course.semesterId === selectedSemesterId);
+            }
+            
+            const gpa = calculateGPA(filteredCourses);
+            document.getElementById('currentGPA').textContent = gpa.toFixed(2);
+        }
+
+        // Update GPA chart
+        function updateGPAChart() {
+            const chartCanvas = document.getElementById('gpaChart');
+            
+            // Calculate GPA for each semester
+            const semesterGPAs = academicData.semesters.map(semester => {
+                const semesterCourses = academicData.courses.filter(course => course.semesterId === semester.id);
+                return {
+                    semester: semester.name,
+                    gpa: calculateGPA(semesterCourses)
+                };
+            });
+            
+            // Create chart data
+            const labels = semesterGPAs.map(item => item.semester);
+            const data = semesterGPAs.map(item => item.gpa);
+            
+            // Destroy previous chart if it exists
+            if (gpaChart) {
+                gpaChart.destroy();
+            }
+            
+            // Create new chart
+            gpaChart = new Chart(chartCanvas, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Semester GPA',
+                        data: data,
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 4.0,
+                            title: {
+                                display: true,
+                                text: 'GPA'
+                            }
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // Event listeners for dropdown changes
+        document.getElementById('semesterViewSelect').addEventListener('change', function() {
+            updateGPASummary();
+        });
+        
+        document.getElementById('semesterCoursesSelect').addEventListener('change', function() {
+            updateCourseList();
+        });
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', function() {
+            loadSavedData();
+        });
+    </script>
+</body>
+</html>

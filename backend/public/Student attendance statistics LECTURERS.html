@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Management System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        .fade-in {
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto p-4">
+        <header class="bg-blue-800 text-white p-4 rounded-lg shadow-lg mb-6">
+            <h1 class="text-3xl font-bold">Attendance Management System</h1>
+            <p class="text-sm">Track student attendance class-wise</p>
+        </header>
+
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex flex-wrap justify-between items-center mb-4">
+                <div class="flex items-center space-x-4 mb-4 md:mb-0">
+                    <div>
+                        <label for="class-select" class="block text-sm font-medium text-gray-700">Select Class</label>
+                        <select id="class-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                            <option value="">-- Select Class --</option>
+                            <option value="CS101">CS101 - Introduction to Programming</option>
+                            <option value="CS201">CS201 - Data Structures</option>
+                            <option value="CS301">CS301 - Database Systems</option>
+                            <option value="CS401">CS401 - Artificial Intelligence</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="date-select" class="block text-sm font-medium text-gray-700">Date</label>
+                        <input type="date" id="date-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                    </div>
+                </div>
+                
+                <div class="flex space-x-2">
+                    <button id="load-class" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-300 ease-in-out">
+                        Load Students
+                    </button>
+                    <button id="save-attendance" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition duration-300 ease-in-out" disabled>
+                        Save Attendance
+                    </button>
+                </div>
+            </div>
+
+            <div id="stats-container" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 hidden">
+                <div class="bg-blue-100 p-4 rounded-lg text-center">
+                    <h3 class="text-lg font-semibold text-blue-800">Total Students</h3>
+                    <p id="total-count" class="text-2xl font-bold text-blue-900">0</p>
+                </div>
+                <div class="bg-green-100 p-4 rounded-lg text-center">
+                    <h3 class="text-lg font-semibold text-green-800">Present</h3>
+                    <p id="present-count" class="text-2xl font-bold text-green-900">0</p>
+                </div>
+                <div class="bg-red-100 p-4 rounded-lg text-center">
+                    <h3 class="text-lg font-semibold text-red-800">Absent</h3>
+                    <p id="absent-count" class="text-2xl font-bold text-red-900">0</p>
+                </div>
+                <div class="bg-yellow-100 p-4 rounded-lg text-center">
+                    <h3 class="text-lg font-semibold text-yellow-800">Attendance Rate</h3>
+                    <p id="attendance-rate" class="text-2xl font-bold text-yellow-900">0%</p>
+                </div>
+            </div>
+
+            <div id="attendance-table-container" class="overflow-hidden hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Roll No
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Student Name
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Notes
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendance-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Students will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="no-class-selected" class="text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No class selected</h3>
+                <p class="mt-1 text-sm text-gray-500">Select a class from the dropdown menu to load students.</p>
+            </div>
+
+            <div id="loading-indicator" class="text-center py-12 hidden">
+                <svg class="animate-spin mx-auto h-12 w-12 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="mt-2 text-sm font-medium text-gray-900">Loading students...</p>
+            </div>
+        </div>
+
+        <div id="notification" class="hidden fixed bottom-4 right-4 px-4 py-2 rounded-md text-white transition-opacity duration-300" role="alert"></div>
+
+        <div id="attendance-history" class="bg-white rounded-lg shadow-lg p-6 mb-6 hidden">
+            <h2 class="text-xl font-bold mb-4">Recent Attendance Records</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Class</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Present</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Absent</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- History will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample student data - in a real application, this would come from a database
+        const classData = {
+            'CS101': [
+                { id: 1, rollNo: 'CS101-001', name: 'John Smith' },
+                { id: 2, rollNo: 'CS101-002', name: 'Maria Garcia' },
+                { id: 3, rollNo: 'CS101-003', name: 'Ahmed Khan' },
+                { id: 4, rollNo: 'CS101-004', name: 'Sofia Chen' },
+                { id: 5, rollNo: 'CS101-005', name: 'David Johnson' },
+                { id: 6, rollNo: 'CS101-006', name: 'Emma Wilson' },
+                { id: 7, rollNo: 'CS101-007', name: 'Jamal Brown' },
+                { id: 8, rollNo: 'CS101-008', name: 'Priya Patel' }
+            ],
+            'CS201': [
+                { id: 9, rollNo: 'CS201-001', name: 'Olivia Davis' },
+                { id: 10, rollNo: 'CS201-002', name: 'James Wilson' },
+                { id: 11, rollNo: 'CS201-003', name: 'Isabella Martinez' },
+                { id: 12, rollNo: 'CS201-004', name: 'Michael Johnson' },
+                { id: 13, rollNo: 'CS201-005', name: 'Sophia Lee' },
+                { id: 14, rollNo: 'CS201-006', name: 'Benjamin Taylor' }
+            ],
+            'CS301': [
+                { id: 15, rollNo: 'CS301-001', name: 'Emma Thompson' },
+                { id: 16, rollNo: 'CS301-002', name: 'Daniel Rodriguez' },
+                { id: 17, rollNo: 'CS301-003', name: 'Ava White' },
+                { id: 18, rollNo: 'CS301-004', name: 'Noah Harris' },
+                { id: 19, rollNo: 'CS301-005', name: 'Mia Clark' }
+            ],
+            'CS401': [
+                { id: 20, rollNo: 'CS401-001', name: 'Ethan Walker' },
+                { id: 21, rollNo: 'CS401-002', name: 'Charlotte Hall' },
+                { id: 22, rollNo: 'CS401-003', name: 'Alexander Wright' },
+                { id: 23, rollNo: 'CS401-004', name: 'Amelia Evans' }
+            ]
+        };
+
+        // Store for attendance records
+        let attendanceHistory = JSON.parse(localStorage.getItem('attendanceHistory')) || [];
+
+        // DOM Elements
+        const classSelect = document.getElementById('class-select');
+        const dateSelect = document.getElementById('date-select');
+        const loadClassBtn = document.getElementById('load-class');
+        const saveAttendanceBtn = document.getElementById('save-attendance');
+        const attendanceTableContainer = document.getElementById('attendance-table-container');
+        const attendanceTableBody = document.getElementById('attendance-table-body');
+        const noClassSelected = document.getElementById('no-class-selected');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const statsContainer = document.getElementById('stats-container');
+        const totalCount = document.getElementById('total-count');
+        const presentCount = document.getElementById('present-count');
+        const absentCount = document.getElementById('absent-count');
+        const attendanceRate = document.getElementById('attendance-rate');
+        const notification = document.getElementById('notification');
+        const attendanceHistory_el = document.getElementById('attendance-history');
+        const historyTableBody = document.getElementById('history-table-body');
+
+        // Set default date to today
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        dateSelect.value = formattedDate;
+
+        // Event Listeners
+        loadClassBtn.addEventListener('click', loadStudents);
+        saveAttendanceBtn.addEventListener('click', saveAttendance);
+
+        // Load attendance history if available
+        loadAttendanceHistory();
+
+        function loadStudents() {
+            const selectedClass = classSelect.value;
+            if (!selectedClass) {
+                showNotification('Please select a class', 'bg-red-500');
+                return;
+            }
+
+            // Show loading indicator
+            noClassSelected.classList.add('hidden');
+            attendanceTableContainer.classList.add('hidden');
+            loadingIndicator.classList.remove('hidden');
+            statsContainer.classList.add('hidden');
+
+            // Simulate API call delay
+            setTimeout(() => {
+                const students = classData[selectedClass] || [];
+                renderStudentTable(students);
+                updateStats();
+                
+                loadingIndicator.classList.add('hidden');
+                attendanceTableContainer.classList.remove('hidden');
+                statsContainer.classList.remove('hidden');
+                saveAttendanceBtn.disabled = false;
+                
+                showNotification(`Loaded ${students.length} students from ${selectedClass}`, 'bg-green-500');
+            }, 800);
+        }
+
+        function renderStudentTable(students) {
+            attendanceTableBody.innerHTML = '';
+            
+            students.forEach((student) => {
+                const row = document.createElement('tr');
+                row.className = 'fade-in';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${student.rollNo}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${student.name}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="status-${student.id}" value="present" class="form-radio h-5 w-5 text-green-600 attendance-radio" checked>
+                                <span class="ml-2 text-sm text-gray-700">Present</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="status-${student.id}" value="absent" class="form-radio h-5 w-5 text-red-600 attendance-radio">
+                                <span class="ml-2 text-sm text-gray-700">Absent</span>
+                            </label>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <input type="text" class="attendance-note border border-gray-300 rounded-md px-3 py-1 w-full text-sm" placeholder="Add note (optional)">
+                    </td>
+                `;
+                attendanceTableBody.appendChild(row);
+            });
+
+            // Add event listeners to update stats when attendance status changes
+            document.querySelectorAll('.attendance-radio').forEach(radio => {
+                radio.addEventListener('change', updateStats);
+            });
+        }
+
+        function updateStats() {
+            const totalStudents = attendanceTableBody.querySelectorAll('tr').length;
+            const presentStudents = attendanceTableBody.querySelectorAll('input[value="present"]:checked').length;
+            const absentStudents = totalStudents - presentStudents;
+            const rate = totalStudents > 0 ? Math.round((presentStudents / totalStudents) * 100) : 0;
+
+            totalCount.textContent = totalStudents;
+            presentCount.textContent = presentStudents;
+            absentCount.textContent = absentStudents;
+            attendanceRate.textContent = `${rate}%`;
+
+            // Update colors based on attendance rate
+            if (rate < 50) {
+                attendanceRate.classList.remove('text-yellow-900', 'text-green-900');
+                attendanceRate.classList.add('text-red-900');
+            } else if (rate < 80) {
+                attendanceRate.classList.remove('text-red-900', 'text-green-900');
+                attendanceRate.classList.add('text-yellow-900');
+            } else {
+                attendanceRate.classList.remove('text-red-900', 'text-yellow-900');
+                attendanceRate.classList.add('text-green-900');
+            }
+        }
+
+        function saveAttendance() {
+            const selectedClass = classSelect.value;
+            const selectedDate = dateSelect.value;
+            
+            if (!selectedClass || !selectedDate) {
+                showNotification('Please select both class and date', 'bg-red-500');
+                return;
+            }
+
+            const attendanceData = {
+                class: selectedClass,
+                date: selectedDate,
+                formattedDate: new Date(selectedDate).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                }),
+                students: []
+            };
+
+            // Collect attendance data
+            const rows = attendanceTableBody.querySelectorAll('tr');
+            rows.forEach((row, index) => {
+                const student = classData[selectedClass][index];
+                const status = row.querySelector('input[type="radio"]:checked').value;
+                const note = row.querySelector('.attendance-note').value;
+                
+                attendanceData.students.push({
+                    id: student.id,
+                    rollNo: student.rollNo,
+                    name: student.name,
+                    status,
+                    note
+                });
+            });
+
+            // Calculate stats
+            const totalStudents = attendanceData.students.length;
+            const presentStudents = attendanceData.students.filter(s => s.status === 'present').length;
+            const absentStudents = totalStudents - presentStudents;
+            const rate = totalStudents > 0 ? Math.round((presentStudents / totalStudents) * 100) : 0;
+            
+            attendanceData.stats = {
+                total: totalStudents,
+                present: presentStudents,
+                absent: absentStudents,
+                rate: rate
+            };
+
+            // Save to local storage (in a real app, this would be sent to a server)
+            // Check if we're updating an existing record
+            const existingIndex = attendanceHistory.findIndex(
+                item => item.class === selectedClass && item.date === selectedDate
+            );
+
+            if (existingIndex >= 0) {
+                attendanceHistory[existingIndex] = attendanceData;
+                showNotification('Attendance record updated successfully!', 'bg-blue-500');
+            } else {
+                attendanceHistory.push(attendanceData);
+                showNotification('Attendance saved successfully!', 'bg-green-500');
+            }
+
+            localStorage.setItem('attendanceHistory', JSON.stringify(attendanceHistory));
+            loadAttendanceHistory();
+        }
+
+        function loadAttendanceHistory() {
+            if (attendanceHistory.length > 0) {
+                attendanceHistory_el.classList.remove('hidden');
+                historyTableBody.innerHTML = '';
+                
+                // Sort by date (newest first)
+                attendanceHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                attendanceHistory.forEach((record) => {
+                    const row = document.createElement('tr');
+                    row.className = 'fade-in';
+                    
+                    // Apply color based on attendance rate
+                    let rateColorClass = 'text-red-600';
+                    if (record.stats.rate >= 80) {
+                        rateColorClass = 'text-green-600';
+                    } else if (record.stats.rate >= 50) {
+                        rateColorClass = 'text-yellow-600';
+                    }
+                    
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${record.class}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${record.formattedDate}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">${record.stats.present}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">${record.stats.absent}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${rateColorClass}">${record.stats.rate}%</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button data-class="${record.class}" data-date="${record.date}" class="text-blue-600 hover:text-blue-900 mr-2 view-record">View</button>
+                            <button data-class="${record.class}" data-date="${record.date}" class="text-red-600 hover:text-red-900 delete-record">Delete</button>
+                        </td>
+                    `;
+                    historyTableBody.appendChild(row);
+                });
+                
+                // Add event listeners
+                document.querySelectorAll('.view-record').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const recordClass = e.target.dataset.class;
+                        const recordDate = e.target.dataset.date;
+                        
+                        // Set the form values
+                        classSelect.value = recordClass;
+                        dateSelect.value = recordDate;
+                        
+                        // Load the students
+                        loadStudents();
+                        
+                        // Scroll to the top
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                });
+                
+                document.querySelectorAll('.delete-record').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        if (confirm('Are you sure you want to delete this attendance record?')) {
+                            const recordClass = e.target.dataset.class;
+                            const recordDate = e.target.dataset.date;
+                            
+                            // Filter out the record
+                            attendanceHistory = attendanceHistory.filter(
+                                item => !(item.class === recordClass && item.date === recordDate)
+                            );
+                            
+                            // Save to localStorage
+                            localStorage.setItem('attendanceHistory', JSON.stringify(attendanceHistory));
+                            
+                            // Reload the history
+                            loadAttendanceHistory();
+                            showNotification('Attendance record deleted', 'bg-red-500');
+                        }
+                    });
+                });
+            } else {
+                attendanceHistory_el.classList.add('hidden');
+            }
+        }
+
+        function showNotification(message, bgClass) {
+            notification.textContent = message;
+            notification.className = `fixed bottom-4 right-4 px-4 py-2 rounded-md text-white ${bgClass}`;
+            notification.classList.remove('hidden');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

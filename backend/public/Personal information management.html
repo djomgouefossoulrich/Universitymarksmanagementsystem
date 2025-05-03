@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Profile Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="bg-white shadow-md rounded-lg p-6 mb-8">
+            <div class="flex justify-between items-center">
+                <h1 class="text-3xl font-bold text-blue-800">Faculty Profile Management</h1>
+                <div class="flex items-center">
+                    <span id="user-name" class="mr-4 font-semibold">Engr . FOSSO</span>
+                    <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- Sidebar Navigation -->
+            <aside class="w-full md:w-1/4">
+                <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                    <div class="p-4 bg-blue-700 text-white">
+                        <h2 class="text-xl font-semibold">Navigation</h2>
+                    </div>
+                    <nav class="p-2">
+                        <ul class="space-y-1">
+                            <li>
+                                <button class="nav-btn w-full text-left px-4 py-3 bg-blue-100 rounded-md flex items-center text-blue-800 font-medium" data-section="personal-info">
+                                    <i class="fas fa-user mr-2"></i> Personal Information
+                                </button>
+                            </li>
+                            <li>
+                                <button class="nav-btn w-full text-left px-4 py-3 hover:bg-blue-50 rounded-md flex items-center" data-section="academic-info">
+                                    <i class="fas fa-graduation-cap mr-2"></i> Academic Information
+                                </button>
+                            </li>
+                            <li>
+                                <button class="nav-btn w-full text-left px-4 py-3 hover:bg-blue-50 rounded-md flex items-center" data-section="research-publications">
+                                    <i class="fas fa-book mr-2"></i> Research & Publications
+                                </button>
+                            </li>
+                            <li>
+                                <button class="nav-btn w-full text-left px-4 py-3 hover:bg-blue-50 rounded-md flex items-center" data-section="teaching-info">
+                                    <i class="fas fa-chalkboard-teacher mr-2"></i> Teaching Information
+                                </button>
+                            </li>
+                            <li>
+                                <button class="nav-btn w-full text-left px-4 py-3 hover:bg-blue-50 rounded-md flex items-center" data-section="settings">
+                                    <i class="fas fa-cog mr-2"></i> Settings
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+
+                <!-- Profile Preview Card -->
+                <div class="bg-white shadow-md rounded-lg mt-6 overflow-hidden">
+                    <div class="p-4 bg-blue-700 text-white">
+                        <h2 class="text-xl font-semibold">Profile Preview</h2>
+                    </div>
+                    <div class="p-4 text-center">
+                        <div class="mb-4">
+                            <img id="profile-image-preview" src="images/pa.jpg" alt="Profile Picture" class="rounded-full w-24 h-24 mx-auto border-4 border-blue-100">
+                        </div>
+                        <h3 id="profile-name-preview" class="text-xl font-bold mb-1">Engr.FOSSO</h3>
+                        <p id="profile-title-preview" class="text-gray-600 mb-2">Associate Professor</p>
+                        <p id="profile-department-preview" class="text-gray-500 mb-4">Department of Computer Science</p>
+                        <button id="view-public-profile" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm transition">View Public Profile</button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="w-full md:w-3/4">
+                <!-- Content Sections -->
+                <div id="personal-info" class="content-section bg-white shadow-md rounded-lg p-6">
+                    <h2 class="text-2xl font-bold mb-6 text-blue-800 border-b pb-2">Personal Information</h2>
+                    <form id="personal-info-form">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="first-name">First Name</label>
+                                <input type="text" id="first-name" name="first-name" value="Jane" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="last-name">Last Name</label>
+                                <input type="text" id="last-name" name="last-name" value="Smith" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="email">Email Address</label>
+                                <input type="email" id="email" name="email" value="jane.smith@university.edu" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" value="(555) 123-4567" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="date-of-birth">Date of Birth</label>
+                                <input type="date" id="date-of-birth" name="date-of-birth" value="1980-05-15" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="gender">Gender</label>
+                                <select id="gender" name="gender" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="female" selected>Female</option>
+                                    <option value="male">Male</option>
+                                    <option value="non-binary">Non-binary</option>
+                                    <option value="prefer-not-to-say">Prefer not to say</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-medium mb-2" for="address">Address</label>
+                            <textarea id="address" name="address" rows="3" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">123 University Avenue, College Town, CT 12345</textarea>
+                        </div>
+
+                        <!-- Profile Picture -->
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-medium mb-2">Profile Picture</label>
+                            <div class="flex items-center space-x-4">
+                                <img id="current-profile-pic" src="images/pa.jpg" alt="Current Profile Picture" class="w-20 h-20 rounded-full object-cover border-2 border-gray-300">
+                                <div>
+                                    <label for="profile-pic-upload" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer transition">
+                                        Change Picture
+                                        <input type="file" id="profile-pic-upload" class="hidden" accept="image/*">
+                                    </label>
+                                    <p class="text-gray-500 text-sm mt-1">Maximum file size: 5MB</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Social Media Links -->
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold mb-4">Social Media & Professional Profiles</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2" for="linkedin">
+                                        <i class="fab fa-linkedin text-blue-700 mr-2"></i> LinkedIn
+                                    </label>
+                                    <input type="url" id="linkedin" name="linkedin" value="https://linkedin.com/in/janesmith" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2" for="twitter">
+                                        <i class="fab fa-twitter text-blue-400 mr-2"></i> Twitter
+                                    </label>
+                                    <input type="url" id="twitter" name="twitter" value="https://twitter.com/drjanesmith" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2" for="researchgate">
+                                        <i class="fab fa-researchgate text-green-600 mr-2"></i> ResearchGate
+                                    </label>
+                                    <input type="url" id="researchgate" name="researchgate" value="https://researchgate.net/profile/Jane_Smith" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2" for="orcid">
+                                        <i class="fab fa-orcid text-green-700 mr-2"></i> ORCID
+                                    </label>
+                                    <input type="url" id="orcid" name="orcid" value="https://orcid.org/0000-0002-1825-0097" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bio -->
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-medium mb-2" for="bio">Biography/About Me</label>
+                            <textarea id="bio" name="bio" rows="5" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">Dr. FOSSO is an Associate Professor in the Department of Computer Science. She specializes in artificial intelligence and machine learning with a focus on natural language processing. With over 10 years of experience in academia, she has published numerous papers in top-tier journals and conferences. She is passionate about mentoring students and advancing research in her field.</textarea>
+                            <p class="text-gray-500 text-sm mt-1">This biography will be displayed on your public profile page.</p>
+                        </div>
+
+                        <div class="flex justify-end space-x-4">
+                            <button type="button" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-md transition">Reset</button>
+                            <button type="button" id="save-personal-info" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md transition">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="academic-info" class="content-section bg-white shadow-md rounded-lg p-6 hidden">
+                    <h2 class="text-2xl font-bold mb-6 text-blue-800 border-b pb-2">Academic Information</h2>
+                    <form id="academic-info-form">
+                        <!-- Current Position -->
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold mb-4">Current Position</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2" for="title">Title/Position</label>
+                                    <input type="text" id="title" name="title" value="Associate Professor" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2" for="department">Department</label>
+                                    <input type="text" id="department" name="department" value="Department of Computer Science" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2" for="faculty">Faculty/School</label>
+                                    <input type="text" id="faculty" name="faculty" value="School of Engineering" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2" for="start-date">Start Date</label>
+                                    <input type="date" id="start-date" name="start-date" value="2018-09-01" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Education -->
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold mb-4">Education</h3>
+                            <div id="education-list" class="space-y-4 mb-4">
+                                <div class="education-item p-4 border rounded-md">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-gray-700 font-medium mb-2" for="degree-1">Degree</label>
+                                            <input type="text" id="degree-1" name="degree-1" value="Ph.D. in Computer Science" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-gray-700 font-medium mb-2" for="institution-1">Institution</label>
+                                            <input type="text" id="institution-1" name="institution-1" value="Stanford University" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-gray-700 font-medium mb-2" for="year-1">Year</label>
+                                            <input type="number" id="year-1" name="year-1" value="2015" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        </div>
+                                        <div class="flex items-end">
+                                            <button type="button" class="remove-education text-red-500 hover:text-red-700 transition">
+                                                <i class="fas fa-trash-alt"></i> Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="education-item p-4 border rounded-md">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-gray-700 font-medium mb-2" for="degree-2">Degree</label>
+                                            <input type="text" id="degree-2" name="degree-2" value="M.S. in Computer Science" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-gray-700 font-medium mb-2" for="institution-2">Institution</label>
+                                            <input type="text" id="institution-2" name="institution-2" value="MIT" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-gray-700 font-medium mb-2" for="year-2">Year</label>
+                                            <input type="number" id="year-2" name="year-2" value="2010" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        </div>
+                                        <div class="flex items-end">
+                                            <button type="button" class="remove-education text-red-500 hover:text-red-700 transition">
+                                                <i class="fas fa-trash-alt"></i> Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" id="add-education" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition">
+                                <i class="fas fa-plus mr-2"></i> Add Education
+                            </button>
+                        </div>
+
+                        <!-- Areas of Expertise -->
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold mb-4">Areas of Expertise</h3>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 font-medium mb-2" for="expertise">Add expertise (comma separated)</label>
+                                <div class="flex">
+                                    <input type="text" id="expertise" class="w-full px-4 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <button type="button" id="add-expertise" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md transition">Add</button>
+                                </div>
+                            </div>
+                            <div id="expertise-tags" class="flex flex-wrap gap-2">
+                                <div class="expertise-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center">
+                                    <span>Artificial Intelligence</span>
+                                    <button type="button" class="remove-expertise ml-2 text-blue-800 hover:text-blue-600">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="expertise-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center">
+                                    <span>Machine Learning</span>
+                                    <button type="button" class="remove-expertise ml-2 text-blue-800 hover:text-blue-600">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="expertise-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center">
+                                    <span>Natural Language Processing</span>
+                                    <button type="button" class="remove-expertise ml-2 text-blue-800 hover:text-blue-600">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="expertise-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center">
+                                    <span>Neural Networks</span>
+                                    <button type="button" class="remove-expertise ml-2 text-blue-800 hover:text-blue-600">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-4">
+                            <button type="button" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-md transition">Reset</button>
+                            <button type="button" id="save-academic-info" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md transition">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="research-publications" class="content-section bg-white shadow-md rounded-lg p-6 hidden">
+                    <h2 class="text-2xl font-bold mb-6 text-blue-800 border-b pb-2">Research & Publications</h2>
+                    
+                    <!-- Research Interests -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4">Research Interests</h3>
+                        <textarea id="research-interests" rows="4" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">My research focuses on developing novel machine learning algorithms for natural language processing, with particular emphasis on sentiment analysis, text summarization, and language generation. I am also interested in the ethical implications of AI and developing fair and unbiased models.</textarea>
+                    </div>
+
+                    <!-- Publications -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4">Publications</h3>
+                        <div class="mb-4">
+                            <div class="flex justify-between items-center mb-4">
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2">Publication Type</label>
+                                    <select id="publication-type" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="journal">Journal Article</option>
+                                        <option value="conference">Conference Paper</option>
+                                        <option value="book">Book/Book Chapter</option>
+                                        <option value="other">Other Publication</option>
+                                    </select>
+                                </div>
+                                <button type="button" id="add-publication" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition">
+                                    <i class="fas fa-plus mr-2"></i> Add Publication
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="publications-list" class="space-y-4">
+                            <div class="publication-item p-4 border rounded-md">
+                                <div class="flex justify-between">
+                                    <span class="bg-blue-100 text-blue-800 text-sm font-medium px-2 py-1 rounded">Journal Article</span>
+                                    <div>
+                                        <button type="button" class="edit-publication text-blue-500 hover:text-blue-700 mr-2">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button type="button" class="remove-publication text-red-500 hover:text-red-700">
+                                            <i class="fas fa-trash-alt"></i> Remove
+                                        </button>
+                                    </div>
+                                </div>
+                                <h4 class="text-lg font-semibold mt-2">Advanced Deep Learning Techniques for Natural Language Processing</h4>
+                                <p class="text-gray-700">Smith, J., Johnson, A., & Williams, B. (2023). Journal of Artificial Intelligence Research, 68, 1543-1572.</p>
+                                <p class="text-gray-600 mt-2">This paper presents novel deep learning architectures for improving performance on various NLP tasks including sentiment analysis and text summarization.</p>
+                                <div class="mt-2">
+                                    <a href="#" class="text-blue-600 hover:underline">https://doi.org/10.1234/jair.2023.68.54</a>
+                                </div>
+                            </div>
+
+                            <div class="publication-item p-4 border rounded-md">
+                                <div class="flex justify-between">
+                                    <span class="bg-green-100 text-green-800 text-sm font-medium px-2 py-1 rounded">Conference Paper</span>
+                                    <div>
+                                        <button type="button" class="edit-publication text-blue-500 hover:text-blue-700 mr-2">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button type="button" class="remove-publication text-red-500 hover:text-red-700">
+                                            <i class="fas fa-trash-alt"></i> Remove
+                                        </button>
+                                    </div>
+                                </div>
+                                <h4 class="text-lg font-semibold mt-2">Ethical Considerations in Designing Conversational AI Systems</h4>
+                                <p class="text-gray-700">Smith, J., & Lee, C. (2022). Proceedings of the International Conference on Machine Learning (ICML 2022), 345-352.</p>
+                                <p class="text-gray-600 mt-2">This paper addresses key ethical challenges in developing conversational AI systems and proposes a framework for ethical design principles.</p>
+                                <div class="mt-2">
+                                    <a href="#" class="text-blue-600 hover:underline">https://proceedings.icml.cc/2022/papers/345</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Research Projects -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4">Research Projects</h3>
+                        <button type="button" id="add-project" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition mb-4">
+                            <i class="fas fa-plus mr-2"></i> Add Project
+                        </button>
+
+                        <div id="projects-list" class="space-y-4">
+                            <div class="project-item p-4 border rounded-md">
+                                <div class="flex justify-between">
+                                    <h4 class="text-lg font-semibold">Developing Fairness-aware Machine Learning Models</h4>
+                                    <div>
+                                        <button type="button" class="edit-project text-blue-500 hover:text-blue-700 mr-2">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button type="button" class="remove-project text-red-500 hover:text-red-700">
+                                            <i class="fas fa-trash-alt"></i> Remove
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-gray-700 mt-2"><strong>Duration:</strong> 2021-2024</p>
+                                <p class="text-gray-700"><strong>Funding:</strong> National Science Foundation (NSF)</p>
+                                <p class="text-gray-600 mt-2">This project aims to develop machine learning models that minimize bias and ensure fairness across different demographic groups. We are developing new algorithms and evaluation metrics to detect and mitigate bias in AI systems.</p>
+                            </div>
+
+                            <div class="project-item p-4 border rounded-md">
+                                <div class="flex justify-between">
+                                    <h4 class="text-lg font-semibold">Conversational AI for Educational Support</h4>
+                                    <div>
+                                        <button type="button" class="edit-project text-blue-500 hover:text-blue-700 mr-2">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button type="button" class="remove-project text-red-500 hover:text-red-700">
+                                            <i class="fas fa-trash-alt"></i> Remove
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-gray-700 mt-2"><strong>Duration:</strong> 2022-2025</p>
+                                <p class="text-gray-700"><strong>Funding:</strong> Department of Education</p>
+                                <p class="text-gray-600 mt-2">This project focuses on developing conversational AI systems tailored for educational purposes. The goal is to create AI-driven tools that assist students and educators in personalized learning experiences.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Add your JavaScript functionality here
+        document.addEventListener('DOMContentLoaded', function () {
+            // Example: Toggle visibility of sections
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const sections = document.querySelectorAll('.content-section');
+
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const sectionId = button.getAttribute('data-section');
+                    sections.forEach(section => {
+                        section.classList.add('hidden');
+                    });
+                    document.getElementById(sectionId).classList.remove('hidden');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

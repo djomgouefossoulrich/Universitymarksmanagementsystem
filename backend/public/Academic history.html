@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Academic History</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto py-8 px-4">
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h1 class="text-2xl font-bold text-gray-800 mb-4">Student Profile - Academic History</h1>
+            
+            <!-- Form to add academic history -->
+            <div class="bg-gray-50 p-4 rounded-md mb-6">
+                <h2 class="text-lg font-semibold text-gray-700 mb-3">Add New Academic Experience</h2>
+                <form id="academicForm" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="institution" class="block text-sm font-medium text-gray-700 mb-1">Institution Name</label>
+                            <input type="text" id="institution" name="institution" required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="degree" class="block text-sm font-medium text-gray-700 mb-1">Degree/Certificate</label>
+                            <input type="text" id="degree" name="degree" required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="field" class="block text-sm font-medium text-gray-700 mb-1">Field of Study</label>
+                            <input type="text" id="field" name="field" required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="gpa" class="block text-sm font-medium text-gray-700 mb-1">GPA (optional)</label>
+                            <input type="text" id="gpa" name="gpa" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                            <input type="month" id="startDate" name="startDate" required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="month" id="endDate" name="endDate" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="current" name="current" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <label for="current" class="ml-2 block text-sm text-gray-700">Current</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description/Achievements</label>
+                        <textarea id="description" name="description" rows="3" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button type="button" id="clearForm" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 mr-2">
+                            Clear
+                        </button>
+                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+                            Add Entry
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Academic history list -->
+            <div>
+                <h2 class="text-lg font-semibold text-gray-700 mb-3">Academic History</h2>
+                <div id="academicList" class="space-y-4">
+                    <p id="noEntries" class="text-gray-500 italic">No academic history entries yet. Add your first one above.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl mx-4">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Edit Academic Experience</h2>
+            <form id="editForm" class="space-y-4">
+                <input type="hidden" id="editId">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="editInstitution" class="block text-sm font-medium text-gray-700 mb-1">Institution Name</label>
+                        <input type="text" id="editInstitution" name="editInstitution" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="editDegree" class="block text-sm font-medium text-gray-700 mb-1">Degree/Certificate</label>
+                        <input type="text" id="editDegree" name="editDegree" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="editField" class="block text-sm font-medium text-gray-700 mb-1">Field of Study</label>
+                        <input type="text" id="editField" name="editField" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="editGpa" class="block text-sm font-medium text-gray-700 mb-1">GPA (optional)</label>
+                        <input type="text" id="editGpa" name="editGpa" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="editStartDate" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                        <input type="month" id="editStartDate" name="editStartDate" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="editEndDate" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="month" id="editEndDate" name="editEndDate" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="editCurrent" name="editCurrent" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label for="editCurrent" class="ml-2 block text-sm text-gray-700">Current</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="editDescription" class="block text-sm font-medium text-gray-700 mb-1">Description/Achievements</label>
+                    <textarea id="editDescription" name="editDescription" rows="3" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                
+                <div class="flex justify-end pt-4 border-t border-gray-200">
+                    <button type="button" id="cancelEdit" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 mr-2">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get form elements
+            const academicForm = document.getElementById('academicForm');
+            const clearFormBtn = document.getElementById('clearForm');
+            const academicList = document.getElementById('academicList');
+            const noEntriesText = document.getElementById('noEntries');
+            const currentCheckbox = document.getElementById('current');
+            const endDateInput = document.getElementById('endDate');
+            
+            // Edit modal elements
+            const editModal = document.getElementById('editModal');
+            const editForm = document.getElementById('editForm');
+            const cancelEditBtn = document.getElementById('cancelEdit');
+            const editCurrentCheckbox = document.getElementById('editCurrent');
+            const editEndDateInput = document.getElementById('editEndDate');
+            
+            // Initialize academic history array from localStorage or empty array
+            let academicHistory = JSON.parse(localStorage.getItem('academicHistory')) || [];
+            
+            // Handle "Current" checkbox toggle
+            currentCheckbox.addEventListener('change', function() {
+                endDateInput.disabled = this.checked;
+                if (this.checked) {
+                    endDateInput.value = '';
+                }
+            });
+            
+            editCurrentCheckbox.addEventListener('change', function() {
+                editEndDateInput.disabled = this.checked;
+                if (this.checked) {
+                    editEndDateInput.value = '';
+                }
+            });
+            
+            // Clear form function
+            clearFormBtn.addEventListener('click', function() {
+                academicForm.reset();
+                endDateInput.disabled = false;
+            });
+            
+            // Form submission handler
+            academicForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Create academic entry object
+                const academicEntry = {
+                    id: Date.now(), // unique identifier
+                    institution: document.getElementById('institution').value,
+                    degree: document.getElementById('degree').value,
+                    field: document.getElementById('field').value,
+                    gpa: document.getElementById('gpa').value,
+                    startDate: document.getElementById('startDate').value,
+                    endDate: currentCheckbox.checked ? 'Present' : document.getElementById('endDate').value,
+                    isCurrent: currentCheckbox.checked,
+                    description: document.getElementById('description').value
+                };
+                
+                // Add to history array
+                academicHistory.push(academicEntry);
+                
+                // Save to localStorage
+                saveToLocalStorage();
+                
+                // Render the updated list
+                renderAcademicHistory();
+                
+                // Reset the form
+                academicForm.reset();
+                endDateInput.disabled = false;
+            });
+            
+            // Edit academic entry
+            function editEntry(id) {
+                const entry = academicHistory.find(item => item.id === id);
+                
+                if (entry) {
+                    // Populate edit form
+                    document.getElementById('editId').value = entry.id;
+                    document.getElementById('editInstitution').value = entry.institution;
+                    document.getElementById('editDegree').value = entry.degree;
+                    document.getElementById('editField').value = entry.field;
+                    document.getElementById('editGpa').value = entry.gpa;
+                    document.getElementById('editStartDate').value = entry.startDate;
+                    
+                    if (entry.isCurrent) {
+                        document.getElementById('editCurrent').checked = true;
+                        document.getElementById('editEndDate').disabled = true;
+                        document.getElementById('editEndDate').value = '';
+                    } else {
+                        document.getElementById('editCurrent').checked = false;
+                        document.getElementById('editEndDate').disabled = false;
+                        document.getElementById('editEndDate').value = entry.endDate;
+                    }
+                    
+                    document.getElementById('editDescription').value = entry.description;
+                    
+                    // Show the modal
+                    editModal.classList.remove('hidden');
+                }
+            }
+            
+            // Delete academic entry
+            function deleteEntry(id) {
+                if (confirm('Are you sure you want to delete this academic entry?')) {
+                    academicHistory = academicHistory.filter(item => item.id !== id);
+                    saveToLocalStorage();
+                    renderAcademicHistory();
+                }
+            }
+            
+            // Edit form submission handler
+            editForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const id = parseInt(document.getElementById('editId').value);
+                const index = academicHistory.findIndex(item => item.id === id);
+                
+                if (index !== -1) {
+                    academicHistory[index] = {
+                        id: id,
+                        institution: document.getElementById('editInstitution').value,
+                        degree: document.getElementById('editDegree').value,
+                        field: document.getElementById('editField').value,
+                        gpa: document.getElementById('editGpa').value,
+                        startDate: document.getElementById('editStartDate').value,
+                        endDate: editCurrentCheckbox.checked ? 'Present' : document.getElementById('editEndDate').value,
+                        isCurrent: editCurrentCheckbox.checked,
+                        description: document.getElementById('editDescription').value
+                    };
+                    
+                    saveToLocalStorage();
+                    renderAcademicHistory();
+                    closeEditModal();
+                }
+            });
+            
+            // Cancel edit button handler
+            cancelEditBtn.addEventListener('click', closeEditModal);
+            
+            // Close edit modal
+            function closeEditModal() {
+                editModal.classList.add('hidden');
+                editForm.reset();
+                editEndDateInput.disabled = false;
+            }
+            
+            // Function to format date for display
+            function formatDate(dateString) {
+                if (dateString === 'Present') return 'Present';
+                
+                const date = new Date(dateString);
+                const month = date.toLocaleString('default', { month: 'short' });
+                const year = date.getFullYear();
+                return `${month} ${year}`;
+            }
+            
+            // Save to localStorage
+            function saveToLocalStorage() {
+                localStorage.setItem('academicHistory', JSON.stringify(academicHistory));
+            }
+            
+            // Render academic history list
+            function renderAcademicHistory() {
+                // Sort by end date (most recent first)
+                academicHistory.sort((a, b) => {
+                    if (a.isCurrent) return -1;
+                    if (b.isCurrent) return 1;
+                    return new Date(b.endDate) - new Date(a.endDate);
+                });
+                
+                // Clear current list
+                while (academicList.firstChild) {
+                    if (academicList.firstChild === noEntriesText) break;
+                    academicList.removeChild(academicList.firstChild);
+                }
+                
+                // Show or hide "no entries" text
+                if (academicHistory.length === 0) {
+                    noEntriesText.classList.remove('hidden');
+                } else {
+                    noEntriesText.classList.add('hidden');
+                    
+                    // Add each academic entry to the list
+                    academicHistory.forEach(entry => {
+                        const entryDiv = document.createElement('div');
+                        entryDiv.className = 'bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow';
+                        
+                        const dateStr = entry.isCurrent ? 
+                            `${formatDate(entry.startDate)} - Present` : 
+                            `${formatDate(entry.startDate)} - ${formatDate(entry.endDate)}`;
+                        
+                        entryDiv.innerHTML = `
+                            <div class="flex justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-lg text-gray-800">${entry.institution}</h3>
+                                    <p class="text-gray-600">${entry.degree} in ${entry.field}</p>
+                                    <p class="text-gray-500 text-sm">${dateStr}</p>
+                                    ${entry.gpa ? `<p class="text-gray-500 text-sm">GPA: ${entry.gpa}</p>` : ''}
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="text-blue-500 hover:text-blue-700" onclick="editEntry(${entry.id})">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                        </svg>
+                                    </button>
+                                    <button class="text-red-500 hover:text-red-700" onclick="deleteEntry(${entry.id})">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            ${entry.description ? `<p class="mt-2 text-gray-700">${entry.description}</p>` : ''}
+                        `;
+                        
+                        academicList.appendChild(entryDiv);
+                    });
+                }
+            }
+            
+            // Make functions globally accessible for inline event handlers
+            window.editEntry = editEntry;
+            window.deleteEntry = deleteEntry;
+            
+            // Initial render
+            renderAcademicHistory();
+        });
+    </script>
+</body>
+</html>

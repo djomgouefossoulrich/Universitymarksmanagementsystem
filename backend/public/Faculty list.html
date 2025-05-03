@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Faculty Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.10.3/cdn.min.js" defer></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div x-data="facultyManagement()" class="container mx-auto px-4 py-8">
+        <!-- Header Section -->
+        <div class="bg-white shadow rounded-lg mb-6 p-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Department Overview</h1>
+            <h2 class="text-xl text-gray-600">Faculty Management System</h2>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="flex flex-col md:flex-row gap-6">
+            <!-- Left Sidebar - Add/Edit Faculty -->
+            <div class="bg-white shadow rounded-lg p-6 md:w-1/3">
+                <h2 class="text-xl font-bold text-gray-800 mb-4" x-text="isEditing ? 'Edit Faculty Member' : 'Add New Faculty Member'"></h2>
+                <form @submit.prevent="saveFaculty()">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Full Name</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            id="name" type="text" x-model="formData.name" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="position">Position</label>
+                        <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            id="position" x-model="formData.position" required>
+                            <option value="">Select Position</option>
+                            <option value="Professor">Professor</option>
+                            <option value="Associate Professor">Associate Professor</option>
+                            <option value="Assistant Professor">Assistant Professor</option>
+                            <option value="Senior Lecturer">Senior Lecturer</option>
+                            <option value="Lecturer">Lecturer</option>
+                            <option value="Assistant Lecturer">Assistant Lecturer</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            id="email" type="email" x-model="formData.email" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="phone">Phone</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            id="phone" type="tel" x-model="formData.phone" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="specialization">Specialization</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            id="specialization" type="text" x-model="formData.specialization" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="joining_date">Joining Date</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            id="joining_date" type="date" x-model="formData.joining_date" required>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" 
+                            type="submit">
+                            <span x-text="isEditing ? 'Update Faculty' : 'Add Faculty'"></span>
+                        </button>
+                        <button x-show="isEditing" 
+                            @click.prevent="cancelEdit()" 
+                            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" 
+                            type="button">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right Content - Faculty List -->
+            <div class="bg-white shadow rounded-lg p-6 md:w-2/3">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Faculty Members</h2>
+                    <div class="relative">
+                        <input 
+                            class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            type="text" 
+                            placeholder="Search faculty..." 
+                            x-model="searchTerm"
+                            @input="searchFaculty()">
+                    </div>
+                </div>
+
+                <!-- Faculty List Table -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                                <th class="py-3 px-6 text-left">Name</th>
+                                <th class="py-3 px-6 text-left">Position</th>
+                                <th class="py-3 px-6 text-left">Specialization</th>
+                                <th class="py-3 px-6 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-600 text-sm">
+                            <template x-for="(faculty, index) in filteredFaculty" :key="index">
+                                <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                    <td class="py-3 px-6 text-left whitespace-nowrap" x-text="faculty.name"></td>
+                                    <td class="py-3 px-6 text-left" x-text="faculty.position"></td>
+                                    <td class="py-3 px-6 text-left" x-text="faculty.specialization"></td>
+                                    <td class="py-3 px-6 text-center">
+                                        <div class="flex item-center justify-center">
+                                            <button @click="viewFaculty(index)" class="w-6 mr-2 transform hover:text-blue-500 hover:scale-110">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                            </button>
+                                            <button @click="editFaculty(index)" class="w-6 mr-2 transform hover:text-yellow-500 hover:scale-110">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                            </button>
+                                            <button @click="deleteFaculty(index)" class="w-6 transform hover:text-red-500 hover:scale-110">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr x-show="filteredFaculty.length === 0">
+                                <td colspan="4" class="py-4 text-center text-gray-500">No faculty members found</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Faculty Details Modal -->
+        <div x-show="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Faculty Details</h3>
+                    <button @click="showModal = false" class="text-gray-500 hover:text-gray-700">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div x-show="selectedFaculty">
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600">Name</p>
+                        <p class="text-md font-medium" x-text="selectedFaculty?.name"></p>
+                    </div>
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600">Position</p>
+                        <p class="text-md font-medium" x-text="selectedFaculty?.position"></p>
+                    </div>
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600">Email</p>
+                        <p class="text-md font-medium" x-text="selectedFaculty?.email"></p>
+                    </div>
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600">Phone</p>
+                        <p class="text-md font-medium" x-text="selectedFaculty?.phone"></p>
+                    </div>
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600">Specialization</p>
+                        <p class="text-md font-medium" x-text="selectedFaculty?.specialization"></p>
+                    </div>
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600">Joining Date</p>
+                        <p class="text-md font-medium" x-text="selectedFaculty?.joining_date"></p>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button @click="showModal = false" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function facultyManagement() {
+            return {
+                faculty: [
+                    {
+                        name: "Dr. Jane Smith",
+                        position: "Professor",
+                        email: "jane.smith@university.edu",
+                        phone: "123-456-7890",
+                        specialization: "Computer Science",
+                        joining_date: "2010-09-01"
+                    },
+                    {
+                        name: "Dr. John Doe",
+                        position: "Associate Professor",
+                        email: "john.doe@university.edu",
+                        phone: "123-456-7891",
+                        specialization: "Data Science",
+                        joining_date: "2012-03-15"
+                    },
+                    {
+                        name: "Dr. Emily Johnson",
+                        position: "Assistant Professor",
+                        email: "emily.johnson@university.edu",
+                        phone: "123-456-7892",
+                        specialization: "Artificial Intelligence",
+                        joining_date: "2018-07-22"
+                    }
+                ],
+                filteredFaculty: [],
+                formData: {
+                    name: "",
+                    position: "",
+                    email: "",
+                    phone: "",
+                    specialization: "",
+                    joining_date: ""
+                },
+                searchTerm: "",
+                isEditing: false,
+                currentEditIndex: null,
+                showModal: false,
+                selectedFaculty: null,
+
+                init() {
+                    // Load faculty from localStorage if available
+                    const savedFaculty = localStorage.getItem('faculty');
+                    if (savedFaculty) {
+                        this.faculty = JSON.parse(savedFaculty);
+                    }
+                    this.filteredFaculty = [...this.faculty];
+
+                    // Check for URL parameters
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('search')) {
+                        this.searchTerm = urlParams.get('search');
+                        this.searchFaculty();
+                    }
+                },
+
+                saveFaculty() {
+                    if (this.isEditing && this.currentEditIndex !== null) {
+                        // Update existing faculty
+                        this.faculty[this.currentEditIndex] = {...this.formData};
+                    } else {
+                        // Add new faculty
+                        this.faculty.push({...this.formData});
+                    }
+                    
+                    // Save to localStorage
+                    localStorage.setItem('faculty', JSON.stringify(this.faculty));
+                    
+                    // Reset form and state
+                    this.resetForm();
+                    this.searchFaculty(); // Refresh filtered list
+                },
+
+                editFaculty(index) {
+                    this.isEditing = true;
+                    this.currentEditIndex = index;
+                    this.formData = {...this.filteredFaculty[index]};
+                    
+                    // Scroll to form
+                    document.querySelector('form').scrollIntoView({ behavior: 'smooth' });
+                },
+
+                viewFaculty(index) {
+                    this.selectedFaculty = this.filteredFaculty[index];
+                    this.showModal = true;
+                },
+
+                deleteFaculty(index) {
+                    if (confirm('Are you sure you want to delete this faculty member?')) {
+                        // Find the actual index in the original array
+                        const actualIndex = this.faculty.findIndex(f => 
+                            f.name === this.filteredFaculty[index].name && 
+                            f.email === this.filteredFaculty[index].email
+                        );
+                        
+                        if (actualIndex !== -1) {
+                            this.faculty.splice(actualIndex, 1);
+                            // Save to localStorage
+                            localStorage.setItem('faculty', JSON.stringify(this.faculty));
+                            this.searchFaculty(); // Refresh filtered list
+                        }
+                    }
+                },
+
+                cancelEdit() {
+                    this.isEditing = false;
+                    this.currentEditIndex = null;
+                    this.resetForm();
+                },
+
+                resetForm() {
+                    this.formData = {
+                        name: "",
+                        position: "",
+                        email: "",
+                        phone: "",
+                        specialization: "",
+                        joining_date: ""
+                    };
+                    this.isEditing = false;
+                    this.currentEditIndex = null;
+                },
+
+                searchFaculty() {
+                    if (!this.searchTerm.trim()) {
+                        this.filteredFaculty = [...this.faculty];
+                    } else {
+                        const term = this.searchTerm.toLowerCase();
+                        this.filteredFaculty = this.faculty.filter(f => 
+                            f.name.toLowerCase().includes(term) || 
+                            f.position.toLowerCase().includes(term) || 
+                            f.specialization.toLowerCase().includes(term) ||
+                            f.email.toLowerCase().includes(term)
+                        );
+                    }
+                    
+                    // Update URL with search parameter
+                    const url = new URL(window.location);
+                    if (this.searchTerm.trim()) {
+                        url.searchParams.set('search', this.searchTerm);
+                    } else {
+                        url.searchParams.delete('search');
+                    }
+                    window.history.pushState({}, '', url);
+                }
+            };
+        }
+    </script>
+</body>
+</html>

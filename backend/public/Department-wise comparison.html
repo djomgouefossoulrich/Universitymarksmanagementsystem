@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Department-wise Comparison - Analytics Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .comparison-card {
+      transition: all 0.3s ease;
+    }
+    .comparison-card:hover {
+      transform: translateY(-2px);
+    }
+    .chart-container {
+      position: relative;
+      height: 300px;
+      width: 100%;
+    }
+    .performance-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 0.5rem;
+    }
+    .performance-high { background-color: #10B981; }
+    .performance-medium { background-color: #F59E0B; }
+    .performance-low { background-color: #EF4444; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <header class="bg-indigo-900 text-white shadow-lg">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-bold">Department-wise Comparison</h1>
+          <p class="text-indigo-200">Academic Performance Analysis</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <button id="printBtn" class="bg-white text-indigo-900 px-4 py-2 rounded-md hover:bg-indigo-50 transition">
+            <i class="fas fa-print mr-2"></i>Print Report
+          </button>
+          <button id="exportBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition">
+            <i class="fas fa-download mr-2"></i>Export Data
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Academic Year</label>
+          <select id="yearFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200">
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Semester</label>
+          <select id="semesterFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200">
+            <option value="">All Semesters</option>
+            <option value="1">1st Semester</option>
+            <option value="2">2nd Semester</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Exam Type</label>
+          <select id="examTypeFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200">
+            <option value="">All Types</option>
+            <option value="midterm">Midterm</option>
+            <option value="final">Final</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Metric</label>
+          <select id="metricFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200">
+            <option value="passRate">Pass Rate</option>
+            <option value="avgGrade">Average Grade</option>
+            <option value="failRate">Fail Rate</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Department Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6 comparison-card">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-800">Computer Science</h3>
+          <span class="performance-indicator performance-high" title="High Performance"></span>
+        </div>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Pass Rate</span>
+            <span class="text-sm font-medium text-gray-900">85.2%</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Average GPA</span>
+            <span class="text-sm font-medium text-gray-900">3.45</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Total Students</span>
+            <span class="text-sm font-medium text-gray-900">450</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6 comparison-card">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-800">Electrical Engineering</h3>
+          <span class="performance-indicator performance-medium" title="Medium Performance"></span>
+        </div>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Pass Rate</span>
+            <span class="text-sm font-medium text-gray-900">78.5%</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Average GPA</span>
+            <span class="text-sm font-medium text-gray-900">3.12</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Total Students</span>
+            <span class="text-sm font-medium text-gray-900">380</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6 comparison-card">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-800">Mechanical Engineering</h3>
+          <span class="performance-indicator performance-medium" title="Medium Performance"></span>
+        </div>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Pass Rate</span>
+            <span class="text-sm font-medium text-gray-900">76.8%</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Average GPA</span>
+            <span class="text-sm font-medium text-gray-900">3.05</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Total Students</span>
+            <span class="text-sm font-medium text-gray-900">320</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      <!-- Performance Comparison Chart -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Performance Comparison</h2>
+        <div class="chart-container">
+          <canvas id="comparisonChart"></canvas>
+        </div>
+      </div>
+      
+      <!-- Trend Analysis Chart -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Performance Trends</h2>
+        <div class="chart-container">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Metrics Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Detailed Department Metrics</h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pass Rate</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg. GPA</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Top Grade %</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fail Rate</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="metricsTableBody" class="bg-white divide-y divide-gray-200">
+              <!-- Table content will be dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Mock data
+      const departmentData = {
+        departments: [
+          {
+            name: 'Computer Science',
+            passRate: 85.2,
+            avgGPA: 3.45,
+            topGrade: 32.5,
+            failRate: 14.8,
+            performance: 'high'
+          },
+          {
+            name: 'Electrical Engineering',
+            passRate: 78.5,
+            avgGPA: 3.12,
+            topGrade: 25.8,
+            failRate: 21.5,
+            performance: 'medium'
+          },
+          {
+            name: 'Mechanical Engineering',
+            passRate: 76.8,
+            avgGPA: 3.05,
+            topGrade: 23.2,
+            failRate: 23.2,
+            performance: 'medium'
+          }
+        ],
+        trends: {
+          labels: ['2022-1', '2022-2', '2023-1', '2023-2', '2024-1'],
+          datasets: {
+            'Computer Science': [82, 83, 84, 85, 85.2],
+            'Electrical Engineering': [75, 76, 77, 78, 78.5],
+            'Mechanical Engineering': [74, 75, 75, 76, 76.8]
+          }
+        }
+      };
+
+      // Initialize charts
+      initializeCharts(departmentData);
+      populateMetricsTable(departmentData.departments);
+
+      // Event listeners
+      document.getElementById('yearFilter').addEventListener('change', handleFilterChange);
+      document.getElementById('semesterFilter').addEventListener('change', handleFilterChange);
+      document.getElementById('examTypeFilter').addEventListener('change', handleFilterChange);
+      document.getElementById('metricFilter').addEventListener('change', handleFilterChange);
+      document.getElementById('exportBtn').addEventListener('click', handleExport);
+      document.getElementById('printBtn').addEventListener('click', handlePrint);
+
+      function initializeCharts(data) {
+        // Performance Comparison Chart
+        const comparisonCtx = document.getElementById('comparisonChart').getContext('2d');
+        new Chart(comparisonCtx, {
+          type: 'bar',
+          data: {
+            labels: data.departments.map(d => d.name),
+            datasets: [{
+              label: 'Pass Rate',
+              data: data.departments.map(d => d.passRate),
+              backgroundColor: 'rgba(79, 70, 229, 0.8)',
+              borderColor: 'rgb(79, 70, 229)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100
+              }
+            }
+          }
+        });
+
+        // Trend Analysis Chart
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        new Chart(trendCtx, {
+          type: 'line',
+          data: {
+            labels: data.trends.labels,
+            datasets: Object.entries(data.trends.datasets).map(([dept, values]) => ({
+              label: dept,
+              data: values,
+              borderColor: getRandomColor(),
+              tension: 0.4,
+              fill: false
+            }))
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100
+              }
+            }
+          }
+        });
+      }
+
+      function populateMetricsTable(departments) {
+        const tbody = document.getElementById('metricsTableBody');
+        tbody.innerHTML = departments.map(dept => `
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <span class="performance-indicator performance-${dept.performance}"></span>
+                <span class="text-sm font-medium text-gray-900">${dept.name}</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              ${dept.passRate}%
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              ${dept.avgGPA}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              ${dept.topGrade}%
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              ${dept.failRate}%
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <button class="text-indigo-600 hover:text-indigo-900" onclick="viewDepartmentDetails('${dept.name}')">
+                <i class="fas fa-chart-line mr-1"></i> View Details
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      function handleFilterChange() {
+        // Show loading state
+        document.querySelectorAll('canvas').forEach(canvas => {
+          canvas.style.opacity = '0.5';
+        });
+
+        // Simulate API call
+        setTimeout(() => {
+          initializeCharts(departmentData);
+          document.querySelectorAll('canvas').forEach(canvas => {
+            canvas.style.opacity = '1';
+          });
+        }, 500);
+      }
+
+      function getRandomColor() {
+        const colors = [
+          'rgb(79, 70, 229)',
+          'rgb(16, 185, 129)',
+          'rgb(245, 158, 11)',
+          'rgb(239, 68, 68)'
+        ];
+        return colors[Math.floor(Math.random() * colors.length)];
+      }
+
+      function handleExport() {
+        alert('Exporting department comparison data...');
+      }
+
+      function handlePrint() {
+        window.print();
+      }
+
+      window.viewDepartmentDetails = function(department) {
+        alert(`Viewing detailed analysis for ${department}`);
+      };
+    });
+  </script>
+</body>
+</html>

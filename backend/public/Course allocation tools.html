@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOD Faculty Management System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <nav class="bg-blue-800 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Faculty Management System</h1>
+            <div class="flex space-x-4">
+                <button onclick="changeTab('faculty')" class="px-3 py-1 rounded bg-blue-600">Faculty</button>
+                <button onclick="changeTab('courses')" class="px-3 py-1 rounded">Courses</button>
+                <button onclick="changeTab('allocation')" class="px-3 py-1 rounded">Course Allocation</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4">
+        <!-- Faculty Management Tab -->
+        <div id="faculty-tab" class="space-y-6">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">Add New Faculty Member</h2>
+                <form id="faculty-form" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Faculty ID</label>
+                            <input id="faculty-id" type="text" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Name</label>
+                            <input id="faculty-name" type="text" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Email</label>
+                            <input id="faculty-email" type="email" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Department</label>
+                            <input id="faculty-department" type="text" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Designation</label>
+                            <select id="faculty-designation" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                                <option value="Professor">Professor</option>
+                                <option value="Associate Professor">Associate Professor</option>
+                                <option value="Assistant Professor">Assistant Professor</option>
+                                <option value="Lecturer">Lecturer</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Specialization</label>
+                            <input id="faculty-specialization" type="text" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                        </div>
+                    </div>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">Add Faculty</button>
+                </form>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">Faculty Members</h2>
+                
+                <div class="mb-4">
+                    <input id="faculty-search" type="text" placeholder="Search faculty..." class="w-full p-2 border rounded-md">
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Designation</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="faculty-list" class="bg-white divide-y divide-gray-200">
+                            <!-- Faculty data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Courses Management Tab -->
+        <div id="courses-tab" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">Add New Course</h2>
+                <form id="course-form" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Course Code</label>
+                            <input id="course-code" type="text" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Course Title</label>
+                            <input id="course-title" type="text" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Credit Hours</label>
+                            <input id="course-credits" type="number" min="1" max="6" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Department</label>
+                            <input id="course-department" type="text" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Semester</label>
+                            <select id="course-semester" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                                <option value="Spring">Spring</option>
+                                <option value="Summer">Summer</option>
+                                <option value="Fall">Fall</option>
+                                <option value="Winter">Winter</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">Add Course</button>
+                </form>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">Courses</h2>
+                
+                <div class="mb-4">
+                    <input id="course-search" type="text" placeholder="Search courses..." class="w-full p-2 border rounded-md">
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Credits</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Semester</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="course-list" class="bg-white divide-y divide-gray-200">
+                            <!-- Course data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Allocation Tab -->
+        <div id="allocation-tab" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">Allocate Course to Faculty</h2>
+                <form id="allocation-form" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Faculty Member</label>
+                            <select id="allocation-faculty" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                                <option value="">Select Faculty</option>
+                                <!-- Faculty options will be inserted here -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Course</label>
+                            <select id="allocation-course" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                                <option value="">Select Course</option>
+                                <!-- Course options will be inserted here -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Academic Year</label>
+                            <input id="allocation-year" type="text" placeholder="e.g., 2024-2025" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Section</label>
+                            <input id="allocation-section" type="text" placeholder="e.g., A, B, C" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                        </div>
+                    </div>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">Allocate Course</button>
+                </form>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">Course Allocations</h2>
+                
+                <div class="mb-4">
+                    <input id="allocation-search" type="text" placeholder="Search allocations..." class="w-full p-2 border rounded-md">
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Faculty</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Academic Year</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Section</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allocation-list" class="bg-white divide-y divide-gray-200">
+                            <!-- Allocation data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Faculty Modal -->
+    <div id="edit-faculty-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-lg max-w-2xl w-full p-6">
+            <h3 class="text-lg font-semibold mb-4">Edit Faculty Member</h3>
+            <form id="edit-faculty-form" class="space-y-4">
+                <input type="hidden" id="edit-faculty-index">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Faculty ID</label>
+                        <input id="edit-faculty-id" type="text" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Name</label>
+                        <input id="edit-faculty-name" type="text" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <input id="edit-faculty-email" type="email" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Department</label>
+                        <input id="edit-faculty-department" type="text" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Designation</label>
+                        <select id="edit-faculty-designation" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                            <option value="Professor">Professor</option>
+                            <option value="Associate Professor">Associate Professor</option>
+                            <option value="Assistant Professor">Assistant Professor</option>
+                            <option value="Lecturer">Lecturer</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Specialization</label>
+                        <input id="edit-faculty-specialization" type="text" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" onclick="closeEditFacultyModal()" class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-100">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Course Modal -->
+    <div id="edit-course-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-lg max-w-2xl w-full p-6">
+            <h3 class="text-lg font-semibold mb-4">Edit Course</h3>
+            <form id="edit-course-form" class="space-y-4">
+                <input type="hidden" id="edit-course-index">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Course Code</label>
+                        <input id="edit-course-code" type="text" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Course Title</label>
+                        <input id="edit-course-title" type="text" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Credit Hours</label>
+                        <input id="edit-course-credits" type="number" min="1" max="6" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Department</label>
+                        <input id="edit-course-department" type="text" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Semester</label>
+                        <select id="edit-course-semester" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 border">
+                            <option value="Spring">Spring</option>
+                            <option value="Summer">Summer</option>
+                            <option value="Fall">Fall</option>
+                            <option value="Winter">Winter</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" onclick="closeEditCourseModal()" class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-100">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Main data structures
+        let faculty = [];
+        let courses = [];
+        let allocations = [];
+        let activeTab = 'faculty';
+        let editingFacultyIndex = -1;
+        let editingCourseIndex = -1;
+
+        // Initialize with sample data
+        function initializeData() {
+            // Check if data exists in localStorage
+            const savedFaculty = localStorage.getItem('faculty');
+            const savedCourses = localStorage.getItem('courses');
+            const savedAllocations = localStorage.getItem('allocations');
+            
+            if (savedFaculty) {
+                faculty = JSON.parse(savedFaculty);
+            } else {
+                // Sample faculty data
+                faculty = [
+                    { id: 'FAC001', name: 'Dr. John Smith', email: 'john.smith@university.edu', department: 'Computer Science', designation: 'Professor', specialization: 'Artificial Intelligence' },
+                    { id: 'FAC002', name: 'Dr. Sarah Johnson', email: 'sarah.johnson@university.edu', department: 'Computer Science', designation: 'Associate Professor', specialization: 'Software Engineering' }
+                ];
+            }
+            
+            if (savedCourses) {
+                courses = JSON.parse(savedCourses);
+            } else {
+                // Sample course data
+                courses = [
+                    { code: 'CS101', title: 'Introduction to Programming', credits: 3, department: 'Computer Science', semester: 'Fall' },
+                    { code: 'CS201', title: 'Data Structures', credits: 4, department: 'Computer Science', semester: 'Spring' }
+                ];
+            }
+            
+            if (savedAllocations) {
+                allocations = JSON.parse(savedAllocations);
+            } else {
+                // Sample allocation data
+                allocations = [
+                    { facultyId: 'FAC001', courseCode: 'CS101', academicYear: '2024-2025', section: 'A' }
+                ];
+            }
+            
+            // Render data
+            renderFacultyTable();
+            renderCourseTable();
+            renderAllocationTable();
+            updateAllocationDropdowns();
+        }
+
+        // Tab switching
+        function changeTab(tab) {
+            document.getElementById('faculty-tab').classList.add('hidden');
+            document.getElementById('courses-tab').classList.add('hidden');
+            document.getElementById('allocation-tab').classList.add('hidden');
+            
+            document.getElementById(`${tab}-tab`).classList.remove('hidden');
+            
+            // Update active button
+            const buttons = document.querySelectorAll('nav button');
+            buttons.forEach(button => {
+                button.classList.remove('bg-blue-600');
+            });
+            event.target.classList.add('bg-blue-600');
+            
+            activeTab = tab;
+        }
+
+        // Faculty management
+        function renderFacultyTable() {
+            const tableBody = document.getElementById('faculty-list');
+            tableBody.innerHTML = '';
+            
+            if (faculty.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="6" class="px-6 py-4 text-center text-gray-500">No faculty members found</td>`;
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            faculty.forEach((member, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">${member.id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${member.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${member.email}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${member.department}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${member.designation}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <button onclick="openEditFacultyModal(${index})" class="text-blue-600 hover:text-blue-800 mr-2">Edit</button>
+                        <button onclick="deleteFaculty(${index})" class="text-red-600 hover:text-red-800">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Course management
+        function renderCourseTable() {
+            const tableBody = document.getElementById('course-list');
+            tableBody.innerHTML = '';
+            
+            if (courses.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="6" class="px-6 py-4 text-center text-gray-500">No courses found</td>`;
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            courses.forEach((course, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">${course.code}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${course.title}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${course.credits}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${course.department}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${course.semester}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <button onclick="openEditCourseModal(${index})" class="text-blue-600 hover:text-blue-800 mr-2">Edit</button>
+                        <button onclick="deleteCourse(${index})" class="text-red-600 hover:text-red-800">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Allocation management
+        function renderAllocationTable() {
+            const tableBody = document.getElementById('allocation-list');
+            tableBody.innerHTML = '';
+            
+            if (allocations.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="5" class="px-6 py-4 text-center text-gray-500">No allocations found</td>`;
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            allocations.forEach((allocation, index) => {
+                const facultyMember = faculty.find(f => f.id === allocation.facultyId);
+                const course = courses.find(c => c.code === allocation.courseCode);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">${facultyMember ? facultyMember.name : 'Unknown'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${course ? course.title : 'Unknown'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${allocation.academicYear}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${allocation.section}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <button onclick="deleteAllocation(${index})" class="text-red-600 hover:text-red-800">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function updateAllocationDropdowns() {
+            const facultySelect = document.getElementById('allocation-faculty');
+            const courseSelect = document.getElementById('allocation-course');
+            
+            // Clear existing options
+            facultySelect.innerHTML = '<option value="">Select Faculty</option>';
+            courseSelect.innerHTML = '<option value="">Select Course</option>';
+            
+            // Add faculty options
+            faculty.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member.id;
+                option.textContent = `${member.name} (${member.id})`;
+                facultySelect.appendChild(option);
+            });
+        }
+        </script>
+        </body>
+</html>

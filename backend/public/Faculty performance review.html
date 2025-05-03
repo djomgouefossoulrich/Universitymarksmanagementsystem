@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOD Faculty Management System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.10.3/cdn.min.js" defer></script>
+</head>
+<body class="bg-gray-100 min-h-screen" x-data="facultyApp()">
+    <header class="bg-blue-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <h1 class="text-3xl font-bold">Faculty Management System</h1>
+            <p class="text-sm">Head of Department Portal</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Dashboard Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold mb-2">Total Faculty</h3>
+                <p class="text-3xl font-bold text-blue-600" x-text="faculty.length"></p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold mb-2">Pending Reviews</h3>
+                <p class="text-3xl font-bold text-yellow-600" x-text="getPendingReviewsCount()"></p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold mb-2">Average Rating</h3>
+                <p class="text-3xl font-bold text-green-600" x-text="getAverageRating()"></p>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap gap-4 mb-8">
+            <button 
+                @click="activeTab = 'list'; showAddModal = false" 
+                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                :class="{'bg-blue-800': activeTab === 'list'}"
+            >
+                Faculty List
+            </button>
+            <button 
+                @click="activeTab = 'reviews'; showAddModal = false" 
+                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                :class="{'bg-blue-800': activeTab === 'reviews'}"
+            >
+                Performance Reviews
+            </button>
+            <button 
+                @click="openAddFacultyModal()" 
+                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition ml-auto"
+            >
+                Add New Faculty
+            </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="mb-8">
+            <div class="relative">
+                <input 
+                    type="text" 
+                    placeholder="Search faculty by name, department, or expertise..."
+                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    x-model="searchQuery"
+                >
+                <button class="absolute right-2 top-2 text-gray-400" @click="searchQuery = ''">
+                    <span x-show="searchQuery">✕</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Faculty List Tab -->
+        <div x-show="activeTab === 'list'">
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Faculty Member</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expertise</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performance Rating</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <template x-for="(member, index) in filteredFaculty" :key="index">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                            <span class="text-blue-800 font-semibold" x-text="getInitials(member.name)"></span>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900" x-text="member.name"></div>
+                                            <div class="text-sm text-gray-500" x-text="member.email"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="member.department"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="member.expertise"></td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div x-show="member.performanceRating > 0">
+                                        <div class="flex items-center">
+                                            <div class="text-sm font-medium" x-text="member.performanceRating + '/5'"></div>
+                                            <div class="ml-2 flex">
+                                                <template x-for="i in 5" :key="i">
+                                                    <svg class="w-4 h-4" :class="i <= member.performanceRating ? 'text-yellow-400' : 'text-gray-300'" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                                    </svg>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div x-show="member.performanceRating === 0" class="text-sm text-amber-600">
+                                        Review Pending
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <button 
+                                        @click="openEditModal(index)" 
+                                        class="text-blue-600 hover:text-blue-900 mr-3"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button 
+                                        @click="openReviewModal(index)" 
+                                        class="text-green-600 hover:text-green-900 mr-3"
+                                    >
+                                        Review
+                                    </button>
+                                    <button 
+                                        @click="confirmDelete(index)" 
+                                        class="text-red-600 hover:text-red-900"
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                        <tr x-show="filteredFaculty.length === 0">
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                No faculty members found matching your search.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Performance Reviews Tab -->
+        <div x-show="activeTab === 'reviews'">
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold">Faculty Performance Reviews</h2>
+                </div>
+                
+                <!-- Review Filters -->
+                <div class="p-4 bg-gray-50 border-b border-gray-200">
+                    <div class="flex flex-wrap gap-4">
+                        <select 
+                            x-model="reviewFilter" 
+                            class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="all">All Reviews</option>
+                            <option value="pending">Pending Reviews</option>
+                            <option value="completed">Completed Reviews</option>
+                            <option value="high">High Performance (4-5)</option>
+                            <option value="medium">Average Performance (3)</option>
+                            <option value="low">Needs Improvement (1-2)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Reviews List -->
+                <div class="divide-y divide-gray-200">
+                    <template x-for="(member, index) in filteredReviews" :key="index">
+                        <div class="p-6 hover:bg-gray-50">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <span class="text-blue-800 font-semibold" x-text="getInitials(member.name)"></span>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-medium" x-text="member.name"></h3>
+                                        <p class="text-sm text-gray-600" x-text="member.department"></p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span 
+                                        x-show="member.performanceRating > 0" 
+                                        class="px-3 py-1 rounded-full text-sm font-medium"
+                                        :class="{
+                                            'bg-green-100 text-green-800': member.performanceRating >= 4,
+                                            'bg-yellow-100 text-yellow-800': member.performanceRating === 3,
+                                            'bg-red-100 text-red-800': member.performanceRating < 3
+                                        }"
+                                        x-text="member.performanceRating + '/5'"
+                                    ></span>
+                                    <span 
+                                        x-show="member.performanceRating === 0" 
+                                        class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium"
+                                    >
+                                        Pending
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4" x-show="member.performanceRating > 0">
+                                <h4 class="font-medium mb-2">Performance Notes:</h4>
+                                <p class="text-gray-700" x-text="member.reviewNotes || 'No notes provided.'"></p>
+                            </div>
+                            
+                            <div class="mt-4" x-show="member.performanceRating > 0">
+                                <h4 class="font-medium mb-2">Areas for Improvement:</h4>
+                                <p class="text-gray-700" x-text="member.improvementAreas || 'No areas specified.'"></p>
+                            </div>
+                            
+                            <div class="mt-4 flex justify-end">
+                                <button 
+                                    @click="openReviewModal(index)" 
+                                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                                    x-text="member.performanceRating === 0 ? 'Add Review' : 'Edit Review'"
+                                ></button>
+                            </div>
+                        </div>
+                    </template>
+                    <div x-show="filteredReviews.length === 0" class="p-6 text-center text-gray-500">
+                        No reviews match your selected filters.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Faculty Modal -->
+    <div x-show="showAddModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6" @click.away="showAddModal = false">
+            <h2 class="text-xl font-bold mb-4">Add New Faculty Member</h2>
+            <form @submit.prevent="addFaculty()">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Full Name</label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        x-model="newFaculty.name" 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required
+                    >
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        x-model="newFaculty.email" 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required
+                    >
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="department">Department</label>
+                    <input 
+                        type="text" 
+                        id="department" 
+                        x-model="newFaculty.department" 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required
+                    >
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="expertise">Areas of Expertise</label>
+                    <input 
+                        type="text" 
+                        id="expertise" 
+                        x-model="newFaculty.expertise" 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required
+                    >
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="joiningDate">Joining Date</label>
+                    <input 
+                        type="date" 
+                        id="joiningDate" 
+                        x-model="newFaculty.joiningDate" 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required
+                    >
+                </div>
+                <div class="flex items-center justify-end">
+                    <button 
+                        type="button" 
+                        @click="showAddModal = false" 
+                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded mr-2 hover:bg-gray-400 transition"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        type="submit" 
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                    >
+                        Add Faculty
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Faculty Modal -->
+    <div x-show="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6" @click.away="showEditModal = false">
+            <h2 class="text-xl font-bold mb-4">Edit Faculty Member</h2>
+            <form @submit.prevent="updateFaculty()">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-name">Full Name</label>
+                    <input 
+                        type="text" 
+                        id="edit-name" 
+                        x-model="editingFaculty.name" 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required
+                    >
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-email">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="edit-email" 
+                        x-model="editingFaculty.email" 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required
+                    >
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-department">Department</label>
+                    <input 
+                        type="text" 
+                        id="edit-department" 
+                        x-model="editingFaculty.department" 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required
+                    >
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-expertise">Areas of Expertise</label>
+                    <input 
+                        type="text" 
+                        id="edit-expertise" 
+                        x-model="editingFaculty.expertise" 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required
+                    >
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-joiningDate">Joining Date</label>
+                    <input 
+                        type="date" 
+                        id="edit-joiningDate" 
+                        x-model="editingFaculty.joiningDate" 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required
+                    >
+                </div>
+                <div class="flex items-center justify-end">
+                    <button 
+                        type="button" 
+                        @click="showEditModal = false" 
+                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded mr-2 hover:bg-gray-400 transition"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        type="submit" 
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                    >
+                        Update Faculty
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div x-show="showReviewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6" @click.away="showReviewModal = false">
+            <h2 class="text-xl font-bold mb-4" x-text="'Review: ' + (editingFaculty.name || '')"></h2>
+            <form @submit.prevent="submitReview()">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Performance Rating</label>
+                    <div class="flex items-center space-x-2">
+                        <template x-for="i in 5" :key="i">
+                            <button 
+                                type="button"
+                                @click="editingFaculty.performanceRating = i"
+                                class="focus:outline-none"
+                            >
+                                <svg class="w-8 h-8" :class="i <= editingFaculty.performanceRating ? 'text-yellow-400' : 'text-gray-300'" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                            </button>
+                        </template>
+                        <span class="ml-2 text-lg font-medium" x-text="editingFaculty.performanceRating + '/5'"></span>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="review-notes">Performance Notes</label>
+                    <textarea 
+                        id="review-notes" 
+                        x-model="editingFaculty.reviewNotes" 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-32"
+                        placeholder="Describe the faculty member's performance, achievements, and contributions..."
+                    ></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="improvement-areas">Areas for Improvement</label>
+                    <textarea 
+                        id="improvement-areas" 
+                        x-model="editingFaculty.improvementAreas" 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-32"
+                        placeholder="Suggest areas where the faculty member could improve..."
+                    ></textarea>
+                </div>
+                <div class="flex items-center justify-end">
+                    <button 
+                        type="button" 
+                        @click="showReviewModal = false" 
+                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded mr-2 hover:bg-gray-400 transition"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        type="submit" 
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                    >
+                        Submit Review
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div x-show="showDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6" @click.away="showDeleteModal = false">
+            <h2 class="text-xl font-bold mb-4">Confirm Deletion</h2>
+            <p class="mb-6">Are you sure you want to delete <span class="font-medium" x-text="faculty[deletingIndex]?.name || ''"></span>? This action cannot be undone.</p>
+            <div class="flex items-center justify-end">
+                <button 
+                    @click="showDeleteModal = false" 
+                    class="px-4 py-2 bg-gray-300 text-gray-800 rounded mr-2 hover:bg-gray-400 transition"
+                >
+                    Cancel
+                </button>
+                <button 
+                    @click="deleteFaculty()" 
+                    class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+                >
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Alert -->
+    <div 
+        x-show="showAlert" 
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 transform translate-y-2"
+        x-transition:enter-end="opacity-100 transform translate-y-0"
+        x-transition:leave="transition ease-in duration-300"
+        x-transition:leave-start="opacity-100 transform translate-y-0"
+        x-transition:leave-end="opacity-0 transform translate-y-2"
+        class="fixed bottom-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md"
+    >
+        <div class="flex">
+            <div class="py-1"><svg class="w-6 h-6 mr-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+            </div>
+            <div>
+                <p class="font-bold">Success</p>
+                <p class="text-sm" x-text="alertMessage"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function facultyApp() {
+            return {
+                faculty: [
+                    {
+                        name: "Dr. Sarah Johnson",
+                        email: "sjohnson@university.edu",
+                        department: "Computer Science",
+                        expertise: "Artificial Intelligence, Machine Learning",
+                        joiningDate: "2019-09-15",
+                        performanceRating: 4,
+                        reviewNotes: "Dr. Johnson has shown exceptional performance in research and teaching. Her AI lab has published 5 papers in top-tier conferences this year.",
+                        improvementAreas: "Could increase involvement in departmental committees and initiatives."
+                    },
+                    {
+                        name: "Prof. Michael Chen",
+                        email: "mchen@university.edu",
+                        department: "Computer Science",
+                        expertise: "Database Systems, Data Mining",
+                        joiningDate: "2015-03-22",
+                        performanceRating: 5,
+                        reviewNotes: "Prof. Chen continues to be an outstanding faculty member. His course evaluations are consistently among the highest in the department, and he has secured two major grants this year.",
+                        improvementAreas: "None identified. Exemplary performance across all areas."
+                    },
+                    {
+                        name: "Dr. Emily Rodriguez",
+                        email: "erodriguez@university.edu",
+                        department: "Mathematics",
+                        expertise: "Number Theory, Cryptography",
+                        joiningDate: "2022-01-10",
+                        performanceRating: 0,
+                        reviewNotes: "",
+                        improvementAreas: ""
+                    },
+                    {
+                        name: "Prof. James Wilson",
+                        email: "jwilson@university.edu",
+                        department: "Electrical Engineering",
+                        expertise: "Embedded Systems, IoT",
+                        joiningDate: "2018-08-05",
+                        performanceRating: 3,
+                        reviewNotes: "Prof. Wilson has performed adequately in teaching responsibilities and research activities. Has mentored 3 graduate students effectively.",
+                        improvementAreas: "Should work on securing more external funding and increasing publication output."
+                    },
+                ]};
+         }
+                
+        
+        </script>
+    </body>
+</html>

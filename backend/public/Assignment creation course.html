@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecturer Course Management - Assignment Creation</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-blue-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-graduation-cap text-2xl mr-3"></i>
+                    <span class="font-bold text-xl">UMMS</span>
+                </div>
+                <div class="hidden md:flex space-x-6">
+                    <a href="#" class="hover:text-blue-200">Dashboard</a>
+                    <a href="#" class="hover:text-blue-200 font-semibold border-b-2 border-white">Courses</a>
+                    <!-- <a href="#" class="hover:text-blue-200">Students</a>
+                    <a href="#" class="hover:text-blue-200">Calendar</a>
+                    <a href="#" class="hover:text-blue-200">Messages</a> -->
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <button class="focus:outline-none">
+                            <i class="fas fa-bell"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 rounded-full w-4 h-4 text-xs flex items-center justify-center">3</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-2 cursor-pointer">
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                            <span class="font-semibold">DR</span>
+                        </div>
+                        <span>Dr. Roberts</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="bg-white border-b">
+        <div class="container mx-auto px-4 py-2">
+            <div class="flex items-center text-sm text-gray-600">
+                <a href="#" class="hover:text-blue-800">Home</a>
+                <i class="fas fa-chevron-right mx-2 text-xs"></i>
+                <a href="#" class="hover:text-blue-800">Courses</a>
+                <i class="fas fa-chevron-right mx-2 text-xs"></i>
+                <a href="#" class="hover:text-blue-800">CS101: Introduction to Computer Science</a>
+                <i class="fas fa-chevron-right mx-2 text-xs"></i>
+                <span class="text-gray-900 font-medium">Create Assignment</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Create New Assignment</h1>
+            <div>
+                <a href="#" class="text-blue-600 hover:text-blue-800 mr-4"><i class="fas fa-arrow-left mr-1"></i> Back to Course</a>
+                <button id="saveAsDraft" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded mr-2">Save as Draft</button>
+                <button id="publishAssignment" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded">Publish</button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <form id="assignmentForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Left Column -->
+                    <div class="space-y-6">
+                        <div>
+                            <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Assignment Title <span class="text-red-500">*</span></label>
+                            <input type="text" id="title" name="title" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border" placeholder="Enter assignment title" required>
+                        </div>
+
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description <span class="text-red-500">*</span></label>
+                            <textarea id="description" name="description" rows="6" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border" placeholder="Enter detailed assignment instructions" required></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Attachments</label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
+                                <input type="file" id="attachments" name="attachments" class="hidden" multiple>
+                                <label for="attachments" class="cursor-pointer">
+                                    <i class="fas fa-cloud-upload-alt text-gray-400 text-3xl mb-2"></i>
+                                    <p class="text-sm text-gray-500">Drag and drop files here or click to browse</p>
+                                    <p class="text-xs text-gray-400 mt-1">PDF, DOCX, PPT, ZIP (Max: 50MB)</p>
+                                </label>
+                            </div>
+                            <div id="fileList" class="mt-3 space-y-2"></div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Grading Rubric</label>
+                            <div class="bg-gray-50 p-4 rounded-md">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h3 class="font-medium">Rubric Elements</h3>
+                                    <button type="button" id="addRubricItem" class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
+                                        <i class="fas fa-plus mr-1"></i> Add Element
+                                    </button>
+                                </div>
+                                <div id="rubricItems" class="space-y-3">
+                                    <div class="flex items-center space-x-3">
+                                        <input type="text" class="flex-grow border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border text-sm" placeholder="Criteria name">
+                                        <input type="number" class="w-20 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border text-sm" placeholder="Points">
+                                        <button type="button" class="text-red-500 hover:text-red-700">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="space-y-6">
+                        <div>
+                            <label for="course" class="block text-sm font-medium text-gray-700 mb-1">Course <span class="text-red-500">*</span></label>
+                            <select id="course" name="course" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border" required>
+                                <option value="cs101">CS101: Introduction to Computer Science</option>
+                                <option value="cs205">CS205: Data Structures</option>
+                                <option value="cs301">CS301: Algorithms</option>
+                                <option value="cs405">CS405: Machine Learning</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="module" class="block text-sm font-medium text-gray-700 mb-1">Module</label>
+                            <select id="module" name="module" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                                <option value="">-- Select Module --</option>
+                                <option value="module1">Module 1: Introduction to Programming</option>
+                                <option value="module2">Module 2: Control Structures</option>
+                                <option value="module3">Module 3: Functions and Methods</option>
+                                <option value="module4">Module 4: Object-Oriented Programming</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="points" class="block text-sm font-medium text-gray-700 mb-1">Points <span class="text-red-500">*</span></label>
+                                <input type="number" id="points" name="points" min="0" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border" placeholder="100" required>
+                            </div>
+                            <div>
+                                <label for="assignmentType" class="block text-sm font-medium text-gray-700 mb-1">Assignment Type</label>
+                                <select id="assignmentType" name="assignmentType" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                                    <option value="individual">Individual Assignment</option>
+                                    <option value="group">Group Project</option>
+                                    <option value="quiz">Quiz</option>
+                                    <option value="exam">Exam</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="dueDate" class="block text-sm font-medium text-gray-700 mb-1">Due Date <span class="text-red-500">*</span></label>
+                                <input type="date" id="dueDate" name="dueDate" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border" required>
+                            </div>
+                            <div>
+                                <label for="dueTime" class="block text-sm font-medium text-gray-700 mb-1">Due Time <span class="text-red-500">*</span></label>
+                                <input type="time" id="dueTime" name="dueTime" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border" required>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="availableFrom" class="block text-sm font-medium text-gray-700 mb-1">Available From</label>
+                                <input type="date" id="availableFrom" name="availableFrom" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                            </div>
+                            <div>
+                                <label for="availableTime" class="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                                <input type="time" id="availableTime" name="availableTime" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="students" class="block text-sm font-medium text-gray-700 mb-1">Assign To</label>
+                            <select id="students" name="students" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                                <option value="all">All Students</option>
+                                <option value="section1">Section 1</option>
+                                <option value="section2">Section 2</option>
+                                <option value="custom">Select Individual Students</option>
+                            </select>
+                        </div>
+
+                        <div id="studentSelector" class="hidden bg-gray-50 p-4 rounded-md">
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="relative w-full">
+                                    <input type="text" placeholder="Search students..." class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border pr-8 text-sm">
+                                    <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                                </div>
+                            </div>
+                            <div class="max-h-40 overflow-y-auto space-y-1">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="student1" class="mr-2">
+                                    <label for="student1" class="text-sm">John Doe (ID: 12345)</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="student2" class="mr-2">
+                                    <label for="student2" class="text-sm">Jane Smith (ID: 12346)</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="student3" class="mr-2">
+                                    <label for="student3" class="text-sm">Robert Johnson (ID: 12347)</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="student4" class="mr-2">
+                                    <label for="student4" class="text-sm">Sarah Williams (ID: 12348)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Settings</label>
+                            <div class="space-y-2">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="allowLate" name="allowLate" class="mr-2">
+                                    <label for="allowLate" class="text-sm">Allow late submissions</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="turnitin" name="turnitin" class="mr-2">
+                                    <label for="turnitin" class="text-sm">Use plagiarism detection</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="blind" name="blind" class="mr-2">
+                                    <label for="blind" class="text-sm">Enable blind grading</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="peerReview" name="peerReview" class="mr-2">
+                                    <label for="peerReview" class="text-sm">Enable peer review</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-4 mt-8">
+        <div class="container mx-auto px-4 text-center text-sm">
+            <p>© 2025 UMMS Learning Management System. All rights reserved.</p>
+            <div class="mt-2">
+                <!-- <a href="#" class="text-gray-300 hover:text-white mx-2">Privacy Policy</a>
+                <a href="#" class="text-gray-300 hover:text-white mx-2">Terms of Service</a>
+                <a href="#" class="text-gray-300 hover:text-white mx-2">Help Center</a> -->
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle file uploads
+            const fileInput = document.getElementById('attachments');
+            const fileList = document.getElementById('fileList');
+            
+            fileInput.addEventListener('change', function() {
+                fileList.innerHTML = '';
+                Array.from(this.files).forEach(file => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'flex justify-between items-center bg-blue-50 p-2 rounded';
+                    fileItem.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="fas fa-file text-blue-500 mr-2"></i>
+                            <span class="text-sm">${file.name} (${(file.size / 1024).toFixed(1)} KB)</span>
+                        </div>
+                        <button type="button" class="text-red-500 hover:text-red-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    fileList.appendChild(fileItem);
+                    
+                    // Add remove file functionality
+                    const removeBtn = fileItem.querySelector('button');
+                    removeBtn.addEventListener('click', function() {
+                        fileItem.remove();
+                    });
+                });
+            });
+            
+            // Show/hide student selector based on "Assign To" dropdown
+            const assignToSelect = document.getElementById('students');
+            const studentSelector = document.getElementById('studentSelector');
+            
+            assignToSelect.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    studentSelector.classList.remove('hidden');
+                } else {
+                    studentSelector.classList.add('hidden');
+                }
+            });
+            
+            // Add rubric item
+            const addRubricItemBtn = document.getElementById('addRubricItem');
+            const rubricItems = document.getElementById('rubricItems');
+            
+            addRubricItemBtn.addEventListener('click', function() {
+                const newItem = document.createElement('div');
+                newItem.className = 'flex items-center space-x-3';
+                newItem.innerHTML = `
+                    <input type="text" class="flex-grow border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border text-sm" placeholder="Criteria name">
+                    <input type="number" class="w-20 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border text-sm" placeholder="Points">
+                    <button type="button" class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                rubricItems.appendChild(newItem);
+                
+                // Add remove functionality
+                const removeBtn = newItem.querySelector('button');
+                removeBtn.addEventListener('click', function() {
+                    newItem.remove();
+                });
+            });
+            
+            // Form submission
+            const assignmentForm = document.getElementById('assignmentForm');
+            const publishBtn = document.getElementById('publishAssignment');
+            const draftBtn = document.getElementById('saveAsDraft');
+            
+            function validateForm() {
+                const requiredFields = assignmentForm.querySelectorAll('[required]');
+                let valid = true;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value) {
+                        field.classList.add('border-red-500');
+                        valid = false;
+                    } else {
+                        field.classList.remove('border-red-500');
+                    }
+                });
+                
+                return valid;
+            }
+            
+            function showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 p-4 rounded-md shadow-md ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`;
+                notification.innerHTML = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+            
+            publishBtn.addEventListener('click', function() {
+                if (validateForm()) {
+                    // Here you would normally send data to server
+                    showNotification('Assignment published successfully!');
+                } else {
+                    showNotification('Please fill in all required fields.', 'error');
+                }
+            });
+            
+            draftBtn.addEventListener('click', function() {
+                // Save as draft doesn't require validation
+                showNotification('Assignment saved as draft!');
+            });
+            
+            // Set default dates
+            const today = new Date();
+            const dueDate = new Date();
+            dueDate.setDate(today.getDate() + 14); // Due in 2 weeks by default
+            
+            document.getElementById('availableFrom').valueAsDate = today;
+            document.getElementById('dueDate').valueAsDate = dueDate;
+        });
+    </script>
+</body>
+</html>

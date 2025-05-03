@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Historical Trends - Analytics Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .trend-card {
+      transition: all 0.3s ease;
+    }
+    .trend-card:hover {
+      transform: translateY(-2px);
+    }
+    .chart-container {
+      position: relative;
+      height: 300px;
+      width: 100%;
+    }
+    .trend-indicator {
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .trend-up { background-color: #DCFCE7; color: #059669; }
+    .trend-down { background-color: #FEE2E2; color: #DC2626; }
+    .trend-stable { background-color: #E0E7FF; color: #4F46E5; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <header class="bg-indigo-900 text-white shadow-lg">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-bold">Historical Trends Analysis</h1>
+          <p class="text-indigo-200">Long-term Performance Tracking</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <button id="downloadBtn" class="bg-white text-indigo-900 px-4 py-2 rounded-md hover:bg-indigo-50 transition">
+            <i class="fas fa-download mr-2"></i>Download Report
+          </button>
+          <div class="relative" id="dateRangeContainer">
+            <button id="dateRangeBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition">
+              <i class="fas fa-calendar mr-2"></i>Last 5 Years
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Department</label>
+          <select id="departmentFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200">
+            <option value="">All Departments</option>
+            <option value="CS">Computer Science</option>
+            <option value="EE">Electrical Engineering</option>
+            <option value="ME">Mechanical Engineering</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Program Level</label>
+          <select id="programFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200">
+            <option value="">All Programs</option>
+            <option value="UG">Undergraduate</option>
+            <option value="PG">Postgraduate</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Metric</label>
+          <select id="metricFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200">
+            <option value="gpa">Average GPA</option>
+            <option value="passRate">Pass Rate</option>
+            <option value="retention">Retention Rate</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Granularity</label>
+          <select id="granularityFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200">
+            <option value="year">Yearly</option>
+            <option value="semester">Semester</option>
+            <option value="quarter">Quarterly</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Metrics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6 trend-card">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-800">Average GPA</h3>
+          <span class="trend-indicator trend-up">+0.15</span>
+        </div>
+        <p class="text-3xl font-bold text-gray-900 mb-2">3.42</p>
+        <p class="text-sm text-gray-600">vs 3.27 previous year</p>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6 trend-card">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-800">Pass Rate</h3>
+          <span class="trend-indicator trend-up">+2.3%</span>
+        </div>
+        <p class="text-3xl font-bold text-gray-900 mb-2">87.5%</p>
+        <p class="text-sm text-gray-600">vs 85.2% previous year</p>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6 trend-card">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-800">Retention Rate</h3>
+          <span class="trend-indicator trend-stable">+0.5%</span>
+        </div>
+        <p class="text-3xl font-bold text-gray-900 mb-2">92.8%</p>
+        <p class="text-sm text-gray-600">vs 92.3% previous year</p>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6 trend-card">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-800">Graduation Rate</h3>
+          <span class="trend-indicator trend-down">-1.2%</span>
+        </div>
+        <p class="text-3xl font-bold text-gray-900 mb-2">76.5%</p>
+        <p class="text-sm text-gray-600">vs 77.7% previous year</p>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 gap-8 mb-8">
+      <!-- Main Trend Chart -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-lg font-semibold text-gray-800">Performance Trends Over Time</h2>
+          <div class="flex space-x-2">
+            <button class="px-3 py-1 text-sm rounded-md bg-indigo-100 text-indigo-700 hover:bg-indigo-200" onclick="updateTimeframe('1Y')">1Y</button>
+            <button class="px-3 py-1 text-sm rounded-md bg-indigo-100 text-indigo-700 hover:bg-indigo-200" onclick="updateTimeframe('3Y')">3Y</button>
+            <button class="px-3 py-1 text-sm rounded-md bg-indigo-600 text-white" onclick="updateTimeframe('5Y')">5Y</button>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Comparative Analysis -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-lg font-semibold text-gray-800 mb-4">Department Comparison</h2>
+          <div class="chart-container">
+            <canvas id="departmentChart"></canvas>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-lg font-semibold text-gray-800 mb-4">Program Level Analysis</h2>
+          <div class="chart-container">
+            <canvas id="programChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Analysis Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Detailed Trend Analysis</h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time Period</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg. GPA</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pass Rate</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Retention</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">YoY Change</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="trendsTableBody" class="bg-white divide-y divide-gray-200">
+              <!-- Table content will be dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Mock historical data
+      const historicalData = {
+        years: ['2020', '2021', '2022', '2023', '2024'],
+        metrics: {
+          gpa: [3.21, 3.25, 3.27, 3.35, 3.42],
+          passRate: [83.5, 84.2, 85.2, 86.8, 87.5],
+          retention: [91.2, 91.8, 92.3, 92.5, 92.8]
+        },
+        departments: {
+          'Computer Science': [3.35, 3.38, 3.42, 3.45, 3.48],
+          'Electrical Engineering': [3.18, 3.22, 3.25, 3.28, 3.32],
+          'Mechanical Engineering': [3.15, 3.18, 3.20, 3.25, 3.28]
+        }
+      };
+
+      initializeCharts(historicalData);
+      populateTrendsTable(historicalData);
+      setupEventListeners();
+
+      function initializeCharts(data) {
+        // Main Trend Chart
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        new Chart(trendCtx, {
+          type: 'line',
+          data: {
+            labels: data.years,
+            datasets: [{
+              label: 'Average GPA',
+              data: data.metrics.gpa,
+              borderColor: 'rgb(79, 70, 229)',
+              tension: 0.4,
+              fill: false
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: false,
+                min: 2.5,
+                max: 4.0
+              }
+            }
+          }
+        });
+
+        // Department Comparison Chart
+        const deptCtx = document.getElementById('departmentChart').getContext('2d');
+        new Chart(deptCtx, {
+          type: 'bar',
+          data: {
+            labels: data.years,
+            datasets: Object.entries(data.departments).map(([dept, values]) => ({
+              label: dept,
+              data: values,
+              backgroundColor: getRandomColor(0.7),
+              borderColor: getRandomColor(1),
+              borderWidth: 1
+            }))
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: false,
+                min: 2.5,
+                max: 4.0
+              }
+            }
+          }
+        });
+
+        // Program Level Chart
+        const programCtx = document.getElementById('programChart').getContext('2d');
+        new Chart(programCtx, {
+          type: 'line',
+          data: {
+            labels: data.years,
+            datasets: [{
+              label: 'Undergraduate',
+              data: [3.15, 3.18, 3.22, 3.25, 3.28],
+              borderColor: 'rgb(16, 185, 129)',
+              tension: 0.4,
+              fill: false
+            }, {
+              label: 'Postgraduate',
+              data: [3.45, 3.48, 3.52, 3.55, 3.58],
+              borderColor: 'rgb(245, 158, 11)',
+              tension: 0.4,
+              fill: false
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: false,
+                min: 2.5,
+                max: 4.0
+              }
+            }
+          }
+        });
+      }
+
+      function populateTrendsTable(data) {
+        const tbody = document.getElementById('trendsTableBody');
+        tbody.innerHTML = data.years.map((year, index) => {
+          const prevGPA = index > 0 ? data.metrics.gpa[index - 1] : data.metrics.gpa[index];
+          const change = ((data.metrics.gpa[index] - prevGPA) / prevGPA * 100).toFixed(1);
+          const changeClass = change > 0 ? 'text-green-600' : change < 0 ? 'text-red-600' : 'text-gray-600';
+          
+          return `
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${year}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${data.metrics.gpa[index]}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${data.metrics.passRate[index]}%</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${data.metrics.retention[index]}%</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm ${changeClass}">
+                ${change > 0 ? '+' : ''}${change}%
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <button class="text-indigo-600 hover:text-indigo-900" onclick="viewYearDetails('${year}')">
+                  <i class="fas fa-chart-line mr-1"></i> View Details
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      function getRandomColor(alpha = 1) {
+        const colors = [
+          `rgba(79, 70, 229, ${alpha})`,
+          `rgba(16, 185, 129, ${alpha})`,
+          `rgba(245, 158, 11, ${alpha})`,
+          `rgba(239, 68, 68, ${alpha})`
+        ];
+        return colors[Math.floor(Math.random() * colors.length)];
+      }
+
+      function setupEventListeners() {
+        // Filter change handlers
+        document.getElementById('departmentFilter').addEventListener('change', handleFilterChange);
+        document.getElementById('programFilter').addEventListener('change', handleFilterChange);
+        document.getElementById('metricFilter').addEventListener('change', handleFilterChange);
+        document.getElementById('granularityFilter').addEventListener('change', handleFilterChange);
+
+        // Download handler
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+          alert('Downloading trend analysis report...');
+        });
+
+        // Date range handler
+        document.getElementById('dateRangeBtn').addEventListener('click', () => {
+          alert('Opening date range selector...');
+        });
+      }
+
+      function handleFilterChange() {
+        // Show loading state
+        document.querySelectorAll('canvas').forEach(canvas => {
+          canvas.style.opacity = '0.5';
+        });
+
+        // Simulate API call
+        setTimeout(() => {
+          initializeCharts(historicalData);
+          document.querySelectorAll('canvas').forEach(canvas => {
+            canvas.style.opacity = '1';
+          });
+        }, 500);
+      }
+
+      window.updateTimeframe = function(timeframe) {
+        alert(`Updating timeframe to ${timeframe}`);
+      };
+
+      window.viewYearDetails = function(year) {
+        alert(`Viewing detailed analysis for ${year}`);
+      };
+    });
+  </script>
+</body>
+</html>
